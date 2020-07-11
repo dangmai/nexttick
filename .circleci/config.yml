@@ -10,10 +10,15 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
-      - run: systeminfo
       - run:
           name: "Lint"
           shell: powershell.exe
           command: |
             yarn
             yarn run lint
+      - run:
+          name: "Build"
+          shell: powershell.exe
+          command: |
+            yarn run electron:build
+
