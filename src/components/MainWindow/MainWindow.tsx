@@ -1,4 +1,4 @@
-import React, { useState, MouseEvent } from "react";
+import React, { useContext, useState, MouseEvent } from "react";
 
 // reactstrap components
 import {
@@ -16,10 +16,15 @@ import {
   Label,
   Row,
   Col,
+  Spinner,
 } from "reactstrap";
 
+import { ClientContext } from "../../App";
+
 export const MainWindow = () => {
+  const client = useContext(ClientContext);
   const [demoPath, setDemoPath] = useState("");
+  const [demoLoading, setDemoLoading] = useState(false);
   const handleChooseDemo = async (e: MouseEvent) => {
     e.preventDefault();
     const { ipcRenderer } = window.require("electron");
@@ -27,6 +32,18 @@ export const MainWindow = () => {
       setDemoPath(arg);
     });
     ipcRenderer.send("chooseDemo");
+  };
+  const handlePlayDemo = async (e: MouseEvent) => {
+    e.preventDefault();
+    if (demoPath) {
+      const result = await client.post("/play/", {
+        demoPath,
+      });
+      setDemoLoading(true);
+      console.log(result);
+    } else {
+      console.log("No demo chosen");
+    }
   };
   return (
     <>
@@ -75,6 +92,7 @@ export const MainWindow = () => {
                             type="text"
                             value={demoPath}
                             onClick={handleChooseDemo}
+                            readOnly={true}
                           />
                           <InputGroupAddon addonType="append">
                             <Button color="success" onClick={handleChooseDemo}>
@@ -107,8 +125,18 @@ export const MainWindow = () => {
                         </InputGroup>
                       </FormGroup>
                       <div className="text-center">
-                        <Button className="my-4" color="primary" type="button">
-                          Play Demo
+                        <Button
+                          disabled={demoPath === "" || demoLoading}
+                          className="my-4"
+                          color="primary"
+                          type="button"
+                          onClick={handlePlayDemo}
+                        >
+                          {demoLoading ? (
+                            <Spinner color="secondary" />
+                          ) : (
+                            "Play Demo"
+                          )}
                         </Button>
                       </div>
                     </Form>

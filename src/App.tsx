@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
+import axios from "axios";
+
 import "fontsource-open-sans";
 
 import "bootstrap/dist/css/bootstrap.css";
@@ -11,7 +13,13 @@ import { Overlay } from "./components/Overlay/Overlay";
 import { Preferences } from "./components/Preferences/Preferences";
 import { MainWindow } from "./components/MainWindow/MainWindow";
 
-function App() {
+const clientInstance = axios.create({
+  baseURL: "http://localhost:5001",
+});
+
+export const ClientContext = React.createContext(clientInstance);
+
+export function App() {
   const [gameState, setGameState] = useState();
   const ws = useRef<WebSocket | null>(null);
   useEffect(() => {
@@ -29,20 +37,21 @@ function App() {
     };
   }, []);
   return (
-    <Router>
-      <Switch>
-        <Route path="/overlay">
-          <Overlay gameState={gameState} />
-        </Route>
-        <Route path="/preferences">
-          <Preferences />
-        </Route>
-        <Route path="/debug">
-          <Debug gameState={gameState} />
-        </Route>
-        <Route path="/">{<MainWindow />}</Route>
-      </Switch>
-    </Router>
+    <ClientContext.Provider value={clientInstance}>
+      <Router>
+        <Switch>
+          <Route path="/overlay">
+            <Overlay gameState={gameState} />
+          </Route>
+          <Route path="/preferences">
+            <Preferences />
+          </Route>
+          <Route path="/debug">
+            <Debug gameState={gameState} />
+          </Route>
+          <Route path="/">{<MainWindow />}</Route>
+        </Switch>
+      </Router>
+    </ClientContext.Provider>
   );
 }
-export default App;
