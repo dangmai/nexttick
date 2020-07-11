@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import Conf from "conf";
-import * as isDev from "electron-is-dev";
+import isDev from "electron-is-dev";
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
@@ -17,7 +17,9 @@ function createWindow() {
   win = new BrowserWindow({
     width: 900,
     height: 650,
-    icon: `${__dirname}/../../public/favicon.ico`,
+    icon: isDev
+      ? `${__dirname}/../../public/favicon.ico`
+      : `${__dirname}/../favicon.ico`,
     resizable: false,
     webPreferences: {
       nodeIntegration: true,
@@ -28,7 +30,7 @@ function createWindow() {
     win.loadURL("http://localhost:3000/index.html/#/");
   } else {
     // 'build/index.html'
-    win.loadURL(`file://${__dirname}/../index.html/#/`);
+    win.loadURL(`file://${__dirname}/../index.html`);
   }
 
   win.on("closed", () => (win = null));

@@ -11,7 +11,7 @@
   "author": "Dang Mai <contact@dangmai.net>",
   "version": "0.1.0",
   "productName": "NextTick",
-  "main": "build/electron/main.js",
+  "main": "build/electron/electron.js",
   "homepage": ".",
   "dependencies": {
     "argon-design-system-react": "1.1.0",
@@ -43,7 +43,7 @@
     "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
     "electron:dev": "wait-on http://localhost:3000 && tsc-watch -p electron --onSuccess \"electron .\"",
-    "electron:build": "yarn build && tsc -p electron && electron-builder",
+    "electron:build": "yarn build && tsc -p backend && tsc -p electron && electron-builder",
     "backend:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/server.js\""
   },
   "eslintConfig": {
