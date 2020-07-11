@@ -3,6 +3,12 @@
   "engines": {
     "node": ">= 14.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:dangmai/nexttick.git"
+  },
+  "description": "Better demo viewer for Counter-Strike: Global Offensive",
+  "author": "Dang Mai <contact@dangmai.net>",
   "version": "0.1.0",
   "productName": "NextTick",
   "main": "build/electron/main.js",
