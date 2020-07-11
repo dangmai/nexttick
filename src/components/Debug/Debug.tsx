@@ -3,9 +3,6 @@ import axios from "axios";
 import { GameState } from "csgo-gsi-types";
 import { Button } from "reactstrap";
 
-import "bootstrap/dist/css/bootstrap.css";
-import "argon-design-system-react/src/assets/css/argon-design-system-react.css";
-
 import { GameStateCmp } from "../GameState/GameState";
 
 type GameStateProps = {

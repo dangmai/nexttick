@@ -3,6 +3,9 @@ import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
 import "fontsource-open-sans";
 
+import "bootstrap/dist/css/bootstrap.css";
+import "argon-design-system-react/src/assets/scss/argon-design-system-react.scss";
+
 import { Debug } from "./components/Debug/Debug";
 import { Overlay } from "./components/Overlay/Overlay";
 import { Preferences } from "./components/Preferences/Preferences";
