@@ -10,15 +10,24 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
+      - restore_cache:
+        name: Restore Yarn Package Cache
+        keys:
+          - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: "Install dependencies"
+          shell: powershell.exe
+          command: yarn install --immutable
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
       - run:
           name: "Lint"
           shell: powershell.exe
-          command: |
-            yarn
-            yarn run lint
-      - run:
-          name: "Build"
-          shell: powershell.exe
-          command: |
-            yarn run electron:build
-
+          command: yarn run lint
+      # - run:
+      #     name: "Build"
+      #     shell: powershell.exe
+      #     command: yarn run electron:build
