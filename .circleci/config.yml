@@ -11,9 +11,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        name: Restore Yarn Package Cache
-        keys:
-          - yarn-packages-{{ checksum "yarn.lock" }}
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: "Install dependencies"
           shell: powershell.exe
@@ -27,7 +27,3 @@ jobs:
           name: "Lint"
           shell: powershell.exe
           command: yarn run lint
-      # - run:
-      #     name: "Build"
-      #     shell: powershell.exe
-      #     command: yarn run electron:build
