@@ -95,11 +95,11 @@ ipcMain.on("closeOverlay", (event, arg) => {
 });
 
 ipcMain.on("chooseDemo", async (event) => {
-  const demoPath = await dialog.showOpenDialog({
+  const demoPath = dialog.showOpenDialogSync({
     properties: ["openFile"],
     filters: [{ name: "Demo Files", extensions: ["dem"] }],
   });
-  if (demoPath.filePaths.length > 0) {
-    event.reply("demoPath", demoPath.filePaths[0]);
+  if (demoPath && demoPath.length > 0) {
+    event.reply("demoPath", demoPath[0]);
   }
 });
