@@ -1,0 +1,93 @@
+{
+  "name": "nexttick",
+  "engines": {
+    "node": ">= 14.0.0"
+  },
+  "version": "0.1.0",
+  "productName": "NextTick",
+  "main": "build/electron/main.js",
+  "homepage": ".",
+  "dependencies": {
+    "argon-design-system-react": "1.1.0",
+    "axios": "0.19.2",
+    "body-parser": "1.19.0",
+    "bootstrap": "4.5.0",
+    "conf": "7.0.1",
+    "cors": "2.8.5",
+    "electron": "9.0.5",
+    "electron-devtools-installer": "3.1.0",
+    "electron-is-dev": "1.2.0",
+    "express": "4.17.1",
+    "fontsource-open-sans": "2.1.4",
+    "keysender": "1.5.2",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-draggable": "4.4.3",
+    "react-router-dom": "5.2.0",
+    "react-scripts": "3.4.1",
+    "reactstrap": "8.5.1",
+    "telnet-client": "1.4.4",
+    "typescript": "3.9.6",
+    "ws": "7.3.1"
+  },
+  "scripts": {
+    "dev": "concurrently \"yarn run frontend:dev\" \"yarn run electron:dev\" \"yarn run backend:dev\"",
+    "frontend:dev": "cross-env BROWSER=none react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "postinstall": "electron-builder install-app-deps",
+    "electron:dev": "wait-on http://localhost:3000 && tsc-watch -p electron --onSuccess \"electron .\"",
+    "electron:build": "yarn build && tsc -p electron && electron-builder",
+    "backend:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/server.js\""
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "build": {
+    "extends": null,
+    "files": [
+      "build/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "4.2.4",
+    "@testing-library/react": "9.3.2",
+    "@testing-library/user-event": "7.1.2",
+    "@types/axios": "0.14.0",
+    "@types/cors": "2.8.6",
+    "@types/electron-devtools-installer": "2.2.0",
+    "@types/express": "4.17.6",
+    "@types/jest": "24.0.0",
+    "@types/node": "12.12.6",
+    "@types/react": "16.9.42",
+    "@types/react-dom": "16.9.0",
+    "@types/react-router-dom": "5.1.5",
+    "@types/reactstrap": "8.5.0",
+    "@types/testing-library__dom": "7.5.0",
+    "@types/ws": "7.2.6",
+    "concurrently": "5.2.0",
+    "cross-env": "7.0.2",
+    "csgo-gsi-types": "1.0.7",
+    "electron-builder": "22.7.0",
+    "nodemon": "2.0.4",
+    "prettier": "2.0.5",
+    "tsc-watch": "4.2.9",
+    "wait-on": "5.0.1"
+  }
+}

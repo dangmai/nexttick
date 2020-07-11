@@ -1,0 +1,9 @@
+{
+  "togglePause": "demo_togglepause",
+  "specPlayer": "spec_player 2",
+  "testCommand": ["echo Hello", "echo hi"],
+  "showXray": "spec_show_xray 1",
+  "hideXray": "spec_show_xray 0",
+  "showScoreboard": "+score",
+  "hideScoreboard": "-score"
+}
