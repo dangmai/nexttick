@@ -21,7 +21,7 @@ import {
 export const MainWindow = () => (
   <>
     <main>
-      <section className="section section-shaped section-lg">
+      <section className="section section-shaped pt-4">
         <div className="shape shape-style-1 bg-gradient-default">
           <span />
           <span />
@@ -32,7 +32,7 @@ export const MainWindow = () => (
           <span />
           <span />
         </div>
-        <Container>
+        <Container style={{ maxWidth: "95%" }}>
           <Row className="justify-content-center">
             <Col>
               <Card className="bg-secondary shadow border-0">

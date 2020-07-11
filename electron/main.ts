@@ -15,8 +15,10 @@ const config = new Conf();
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: 900,
+    height: 650,
+    icon: `${__dirname}/../../public/favicon.ico`,
+    resizable: false,
     webPreferences: {
       nodeIntegration: true,
     },
