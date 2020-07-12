@@ -7,6 +7,7 @@ import "fontsource-open-sans";
 
 import "bootstrap/dist/css/bootstrap.css";
 import "argon-design-system-react/src/assets/scss/argon-design-system-react.scss";
+import "argon-design-system-react/src/assets/vendor/font-awesome/css/font-awesome.css";
 
 import { Debug } from "./components/Debug/Debug";
 import { Overlay } from "./components/Overlay/Overlay";
