@@ -30,6 +30,9 @@ export const ControlPanel = () => {
           </Button>
         </div>
         <div>
+          <Button title="Switch to Game Control" color="secondary">
+            <i className="fa fa-window-restore fa-lg"></i>
+          </Button>
           <Button title="Playback Speed" color="secondary">
             <i className="fa fa-tachometer fa-lg"></i>
           </Button>
