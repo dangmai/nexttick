@@ -30,13 +30,12 @@ jobs:
           name: "Install dependencies"
           shell: powershell.exe
           command: |
-            $env:YARN_CACHE_FOLDER = '~/.cache/yarn'
             yarn install --immutable
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
-            - ~/.cache/yarn
+            - C:\Users\circleci\AppData\Local\Yarn\Cache\v6
       - persist_to_workspace:
           root: .
           paths:
