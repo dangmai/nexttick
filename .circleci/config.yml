@@ -3,8 +3,11 @@ version: 2.1
 orbs:
   win: circleci/windows@2.4.0
 
-workflows: # Define a Workflow running the build job, then the deploy job
+workflows:
   version: 2
+  test:
+    jobs:
+      - test
   test-build:
     jobs:
       - test
@@ -13,7 +16,7 @@ workflows: # Define a Workflow running the build job, then the deploy job
             - test
           filters:
             tags:
-              only: /^v.*/
+              only: /.*/
 
 jobs:
   test:
