@@ -11,12 +11,12 @@ workflows:
   test-build:
     jobs:
       - test
-      - build:
-          requires:
-            - test
           filters:
             tags:
               only: /.*/
+      - build:
+          requires:
+            - test
 
 jobs:
   test:
