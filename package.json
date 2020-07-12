@@ -24,7 +24,6 @@
     "electron-is-dev": "1.2.0",
     "express": "4.17.1",
     "fontsource-open-sans": "2.1.4",
-    "keysender": "1.5.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-draggable": "4.4.3",
@@ -96,5 +95,8 @@
     "prettier": "2.0.5",
     "tsc-watch": "4.2.9",
     "wait-on": "5.0.1"
+  },
+  "optionalDependencies": {
+    "keysender": "1.5.2"
   }
 }
