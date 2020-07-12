@@ -13,5 +13,7 @@ install:
 test_script:
   - yarn run lint
 
-build_script:
+after_test:
   - ps: if($env:appveyor_repo_tag -eq 'True') { yarn run electron:build }
+
+build: off
