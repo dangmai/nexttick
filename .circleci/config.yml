@@ -51,7 +51,7 @@ jobs:
       shell: powershell.exe
     steps:
       - attach_workspace:
-        at: .
+          at: .
       - run:
           name: "Build and deploy"
           shell: powershell.exe
