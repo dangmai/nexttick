@@ -29,7 +29,11 @@ jobs:
       - run:
           name: "Install dependencies"
           shell: powershell.exe
-          command: yarn install --immutable
+          command: |
+            yarn cache dir
+            $env:YARN_CACHE_FOLDER = '~/.cache/yarn'
+            yarn cache dir
+            yarn install --immutable
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
