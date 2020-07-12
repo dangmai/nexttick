@@ -5,18 +5,18 @@ orbs:
 
 workflows:
   version: 2
-  test:
-    jobs:
-      - test
   test-build:
     jobs:
       - test:
           filters:
             tags:
-              only: /^v.*/
+              only: /.*/
       - build:
           requires:
             - test
+          filters:
+            tags:
+              only: /^v.*/
 
 jobs:
   test:
