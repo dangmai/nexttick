@@ -44,7 +44,9 @@
     "lint": "prettier --check **/*.{ts,js,tsx,md,json,css,html}",
     "electron:dev": "wait-on http://localhost:3000 && tsc-watch -p electron --onSuccess \"electron .\"",
     "electron:build": "yarn build && tsc -p backend && tsc -p electron && electron-builder",
-    "backend:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/server.js\""
+    "backend:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/server.js\"",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -71,6 +73,11 @@
     }
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^5.3.19",
+    "@storybook/addon-links": "^5.3.19",
+    "@storybook/addons": "^5.3.19",
+    "@storybook/preset-create-react-app": "^3.1.4",
+    "@storybook/react": "^5.3.19",
     "@testing-library/jest-dom": "4.2.4",
     "@testing-library/react": "9.3.2",
     "@testing-library/user-event": "7.1.2",
