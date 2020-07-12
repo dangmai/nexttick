@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, MouseEvent, KeyboardEvent } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  MouseEvent,
+  KeyboardEvent,
+} from "react";
 // import Draggable from "react-draggable";
 import { GameState } from "csgo-gsi-types";
 
@@ -15,6 +21,34 @@ export function Overlay(props: GameStateProps) {
     document.title = "NextTick - Overlay";
   }, []);
   const client = useContext(ClientContext);
+  const [alivePlayers, setAlivePlayers] = useState([
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
+  const { gameState } = props;
+  let allPlayersJson = "{}";
+  if (gameState && gameState.allplayers) {
+    allPlayersJson = JSON.stringify(gameState?.allplayers);
+  }
+  useEffect(() => {
+    const allPlayers = JSON.parse(allPlayersJson);
+    if (allPlayers) {
+      const alivePlayers = new Array<boolean>(10);
+      Object.keys(allPlayers).forEach((steamId) => {
+        alivePlayers[allPlayers[steamId].observer_slot] =
+          allPlayers[steamId].state.health > 0;
+      });
+      setAlivePlayers(alivePlayers);
+    }
+  }, [allPlayersJson]);
   const handleSpecPlayer = async (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -40,7 +74,6 @@ export function Overlay(props: GameStateProps) {
   };
   const handleKeyDown = async (e: KeyboardEvent) => {
     e.preventDefault();
-    console.log(e.repeat);
     if (e.keyCode === 9 && !e.repeat) {
       console.log("Tab held");
       await client.post("/telnet-commands/", {
@@ -74,51 +107,61 @@ export function Overlay(props: GameStateProps) {
       <div className="overlay" onClick={handleTogglePlayPause}>
         <div
           className="observer-slot"
+          style={!alivePlayers[1] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-1"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[2] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-2"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[3] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-3"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[4] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-4"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[5] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-5"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[6] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-6"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[7] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-7"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[8] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-8"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[9] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-9"
         ></div>
         <div
           className="observer-slot"
+          style={!alivePlayers[0] ? { display: "none" } : {}}
           onClick={handleSpecPlayer}
           id="observer-0"
         ></div>
