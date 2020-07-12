@@ -13,7 +13,7 @@ workflows:
       - test:
           filters:
             tags:
-              only: /.*/
+              only: /^v.*/
       - build:
           requires:
             - test
