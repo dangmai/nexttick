@@ -4,8 +4,6 @@ platform:
   - x64
 
 cache:
-  - node_modules
-  - '%USERPROFILE%\.electron'
   - "%LOCALAPPDATA%\\Yarn"
 
 install:
