@@ -10,6 +10,7 @@
   "description": "Better demo viewer for Counter-Strike: Global Offensive",
   "author": "Dang Mai <contact@dangmai.net>",
   "version": "0.1.0",
+  "license": "MIT",
   "productName": "NextTick",
   "main": "build/electron/electron.js",
   "homepage": ".",
