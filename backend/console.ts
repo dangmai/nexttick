@@ -1,10 +1,9 @@
 import { promises as fsPromises } from "fs";
 import path from "path";
-import { spawn } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import os from "os";
 
 import Conf from "conf";
-import { Hardware } from "keysender";
 
 import { sendCommands } from "./telnet";
 
@@ -39,6 +38,7 @@ export async function applyAutoexec() {
 }
 
 export async function applyCommandsViaBind(commands: string | string[]) {
+  console.log(`Executing commands via bind: ${commands}`);
   const configPath = path.resolve(
     ...CSGO_PATH,
     "csgo",
@@ -56,13 +56,31 @@ export async function applyCommandsViaBind(commands: string | string[]) {
 }
 
 export async function applyCommandsViaTelnet(commands: string | string[]) {
+  console.log(`Executing commands via telnet: ${commands}`);
   await sendCommands(commands);
 }
 
 async function runBind() {
-  let obj = new Hardware("Counter-Strike: Global Offensive");
-  obj.workwindow.setForeground();
-  obj.keyboard.sendKey("f8");
+  try {
+    const activate = path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "scripts",
+      "activate.ahk"
+    );
+
+    spawnSync(activate, ['"Counter-Strike: Global Offensive"', '"{f8}"'], {
+      stdio: "inherit",
+      shell: true,
+    });
+    spawnSync(activate, ['"NextTick - Overlay"'], {
+      stdio: "inherit",
+      shell: true,
+    });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 export async function launchCsgo(config: Conf, extraArgs?: string[]) {

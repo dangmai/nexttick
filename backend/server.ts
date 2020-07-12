@@ -2,7 +2,6 @@ import Conf from "conf";
 import http from "http";
 import express, { Request, Response, NextFunction } from "express";
 import WebSocket from "ws";
-import { Hardware } from "keysender";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { GameState } from "csgo-gsi-types";
@@ -60,9 +59,6 @@ app.post("/commands", async (req, res) => {
   }
   const consoleCommands = commands[commandRequest.command];
   await applyCommandsViaBind(consoleCommands);
-  let obj = new Hardware("Counter-Strike: Global Offensive");
-  obj.workwindow.setForeground();
-  res.send("Done");
 });
 
 app.get("/preferences", (req, res) => {
@@ -98,12 +94,18 @@ app.post("/spec-player", async (req, res) => {
   res.send("Done");
 });
 
+interface ManualCommandRequest {
+  command: string;
+  type: "telnet" | "bind";
+}
 app.post("/manual-commands", async (req, res) => {
-  const commandRequest: CommandRequest = req.body;
+  const commandRequest: ManualCommandRequest = req.body;
 
-  await applyCommandsViaBind(commandRequest.command);
-  let obj = new Hardware("Counter-Strike: Global Offensive");
-  obj.workwindow.setForeground();
+  if (commandRequest.type === "bind") {
+    await applyCommandsViaBind(commandRequest.command);
+  } else {
+    await applyCommandsViaTelnet(commandRequest.command);
+  }
   res.send("Done");
 });
 interface PlayRequest {

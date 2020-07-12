@@ -105,7 +105,5 @@
     "tsc-watch": "4.2.9",
     "wait-on": "5.0.1"
   },
-  "optionalDependencies": {
-    "keysender": "1.5.2"
-  }
+  "optionalDependencies": {}
 }

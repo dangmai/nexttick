@@ -1,4 +1,4 @@
-import React, { useContext, useState, MouseEvent } from "react";
+import React, { useContext, useEffect, useState, MouseEvent } from "react";
 
 // reactstrap components
 import {
@@ -25,6 +25,9 @@ export const MainWindow = () => {
   const client = useContext(ClientContext);
   const [demoPath, setDemoPath] = useState("");
   const [demoLoading, setDemoLoading] = useState(false);
+  useEffect(() => {
+    document.title = "NextTick - Main";
+  }, []);
   const handleChooseDemo = async (e: MouseEvent) => {
     e.preventDefault();
     const { ipcRenderer } = window.require("electron");

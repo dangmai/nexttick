@@ -20,7 +20,6 @@ export async function sendCommands(commands: string | string[]) {
     });
     console.log("Connection done");
   }
-  console.log(`Executing: ${requestCommand}`);
 
   try {
     await connection.send(requestCommand);

@@ -1,17 +1,20 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, dialog, globalShortcut } from "electron";
 import Conf from "conf";
 import isDev from "electron-is-dev";
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
-
+import { getPlatformInstance } from "../backend/platform/platform";
 if (!isDev) {
   require("../backend/server");
 }
 
 let win: BrowserWindow | null = null;
 let overlayWin: BrowserWindow | null = null;
+let debugWin: BrowserWindow | null = null;
+
 const config = new Conf();
+const platformInstance = getPlatformInstance();
 
 function createWindow() {
   win = new BrowserWindow({
@@ -59,15 +62,42 @@ function createOverlay() {
   });
 
   if (isDev) {
-    overlayWin.loadURL("http://localhost:3000/index.html/#/state");
+    overlayWin.loadURL("http://localhost:3000/index.html/#/overlay");
   } else {
     // 'build/index.html'
-    overlayWin.loadURL(`file://${__dirname}/../index.html/#/state`);
+    overlayWin.loadURL(`file://${__dirname}/../index.html/#/overlay`);
   }
   overlayWin.on("closed", () => (overlayWin = null));
 }
 
-app.on("ready", createWindow);
+function toggleDebugWindow() {
+  if (!debugWin) {
+    debugWin = new BrowserWindow({
+      width: 800,
+      height: 600,
+      webPreferences: {
+        nodeIntegration: true,
+      },
+    });
+    if (isDev) {
+      debugWin.loadURL("http://localhost:3000/index.html/#/debug");
+    } else {
+      // 'build/index.html'
+      debugWin.loadURL(`file://${__dirname}/../index.html/#/debug`);
+    }
+    debugWin.on("closed", () => (overlayWin = null));
+  } else {
+    debugWin.close();
+  }
+}
+
+app.on("ready", () => {
+  createWindow();
+
+  globalShortcut.register(platformInstance.getDebugShortcut(), () => {
+    toggleDebugWindow();
+  });
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

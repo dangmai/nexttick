@@ -1,4 +1,4 @@
-import React, { MouseEvent, KeyboardEvent } from "react";
+import React, { useContext, useEffect, MouseEvent, KeyboardEvent } from "react";
 import axios from "axios";
 import Draggable from "react-draggable";
 import { GameState } from "csgo-gsi-types";
@@ -6,12 +6,19 @@ import { GameState } from "csgo-gsi-types";
 import "bootstrap/dist/css/bootstrap.css";
 import "./Overlay.css";
 
+import { ClientContext } from "../../App";
+
 type GameStateProps = {
   gameState?: GameState;
 };
 export function Overlay(props: GameStateProps) {
+  useEffect(() => {
+    document.title = "NextTick - Overlay";
+  }, []);
+  const client = useContext(ClientContext);
   const handleSpecPlayer = async (e: MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const { gameState } = props;
     const observerSlot = e.currentTarget.getAttribute("id")?.split("-")[1];
 
@@ -50,6 +57,14 @@ export function Overlay(props: GameStateProps) {
       });
     }
   };
+  const handleTogglePlayPause = async (e: MouseEvent) => {
+    e.preventDefault();
+
+    await client.post("/manual-commands", {
+      command: "demo_togglepause",
+      type: "bind",
+    });
+  };
   return (
     <div
       className="frame"
@@ -57,7 +72,7 @@ export function Overlay(props: GameStateProps) {
       onKeyUp={handleKeyUp}
       tabIndex={0}
     >
-      <div className="overlay">
+      <div className="overlay" onClick={handleTogglePlayPause}>
         <div
           className="observer-slot"
           onClick={handleSpecPlayer}
@@ -109,7 +124,7 @@ export function Overlay(props: GameStateProps) {
           id="observer-0"
         ></div>
       </div>
-      <Draggable
+      {/* <Draggable
         axis="both"
         handle=".handle"
         defaultPosition={{ x: 0, y: 0 }}
@@ -121,7 +136,7 @@ export function Overlay(props: GameStateProps) {
           <div className="handle">Drag from here</div>
           <div>This readme is really dragging on...</div>
         </div>
-      </Draggable>
+      </Draggable> */}
     </div>
   );
 }
