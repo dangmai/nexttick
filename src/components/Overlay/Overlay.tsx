@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, MouseEvent, KeyboardEvent } from "react";
-import axios from "axios";
-import Draggable from "react-draggable";
+// import Draggable from "react-draggable";
 import { GameState } from "csgo-gsi-types";
 
 import "bootstrap/dist/css/bootstrap.css";
@@ -34,7 +33,7 @@ export function Overlay(props: GameStateProps) {
     );
     if (chosenPlayer.length > 0) {
       const steamId = chosenPlayer[0].steamId;
-      await axios.post("http://localhost:5001/spec-player/", {
+      await client.post("/spec-player/", {
         steamId,
       });
     }
@@ -44,7 +43,7 @@ export function Overlay(props: GameStateProps) {
     console.log(e.repeat);
     if (e.keyCode === 9 && !e.repeat) {
       console.log("Tab held");
-      await axios.post("http://localhost:5001/telnet-commands/", {
+      await client.post("/telnet-commands/", {
         command: "showScoreboard",
       });
     }
@@ -52,7 +51,7 @@ export function Overlay(props: GameStateProps) {
   const handleKeyUp = async (e: KeyboardEvent) => {
     if (e.keyCode === 9) {
       console.log("Tab unheld");
-      await axios.post("http://localhost:5001/telnet-commands/", {
+      await client.post("/telnet-commands/", {
         command: "hideScoreboard",
       });
     }
