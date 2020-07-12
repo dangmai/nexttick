@@ -10,7 +10,7 @@ workflows:
       - test
   test-build:
     jobs:
-      - test
+      - test:
           filters:
             tags:
               only: /.*/
