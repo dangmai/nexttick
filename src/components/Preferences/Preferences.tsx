@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useContext, useEffect, useState } from "react";
 
 import "bootstrap/dist/css/bootstrap.css";
+
+import { ClientContext } from "../../App";
 
 export function Preferences() {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
+  const client = useContext(ClientContext);
   useEffect(() => {
     async function fetchData() {
-      const preferences = await axios.get("http://localhost:5001/preferences/");
+      const preferences = await client.get("/preferences/");
       console.log(preferences);
       setWidth(preferences.data.width);
       setHeight(preferences.data.height);
@@ -17,7 +19,7 @@ export function Preferences() {
   }, []);
 
   const updatePreferences = async () => {
-    await axios.post("http://localhost:5001/preferences", {
+    await client.post("/preferences", {
       width,
       height,
     });

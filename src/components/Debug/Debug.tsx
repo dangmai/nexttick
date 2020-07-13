@@ -1,5 +1,4 @@
-import React, { MouseEvent, useEffect, useState } from "react";
-import axios from "axios";
+import React, { MouseEvent, useContext, useEffect, useState } from "react";
 import { GameState } from "csgo-gsi-types";
 import {
   Button,
@@ -10,6 +9,7 @@ import {
   InputGroupAddon,
 } from "reactstrap";
 
+import { ClientContext } from "../../App";
 import { GameStateCmp } from "../GameState/GameState";
 
 type GameStateProps = {
@@ -19,26 +19,27 @@ export function Debug(props: GameStateProps) {
   const { gameState } = props;
   const [command, setCommand] = useState("");
 
+  const client = useContext(ClientContext);
   useEffect(() => {
     document.title = "NextTick - Debug";
   }, []);
   const handleCommand = async (e: MouseEvent) => {
     e.preventDefault();
     const commandName = e.currentTarget.getAttribute("name");
-    const result = await axios.post("http://localhost:5001/telnet-commands/", {
+    const result = await client.post("/telnet-commands/", {
       command: commandName,
     });
     console.log(result);
   };
   const launchCsgo = async (e: MouseEvent) => {
     e.preventDefault();
-    const result = await axios.post("http://localhost:5001/launch/");
+    const result = await client.post("/launch/");
     console.log(result);
   };
 
   const sendTelnetCommand = async (e: MouseEvent) => {
     e.preventDefault();
-    const result = await axios.post("http://localhost:5001/manual-commands/", {
+    const result = await client.post("/manual-commands/", {
       command,
       type: "telnet",
     });
@@ -46,7 +47,7 @@ export function Debug(props: GameStateProps) {
   };
   const sendManualCommand = async (e: MouseEvent) => {
     e.preventDefault();
-    const result = await axios.post("http://localhost:5001/manual-commands/", {
+    const result = await client.post("/manual-commands/", {
       command,
       type: "bind",
     });

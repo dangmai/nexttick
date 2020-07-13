@@ -1,18 +1,20 @@
-import React, { MouseEvent } from "react";
-import axios from "axios";
+import React, { useContext, MouseEvent } from "react";
 
 import { GameState } from "csgo-gsi-types";
+
+import { ClientContext } from "../../App";
 
 type GameStateProps = {
   gameState?: GameState;
 };
 export function GameStateCmp(props: GameStateProps) {
   const { gameState } = props;
+  const client = useContext(ClientContext);
 
   const handleSpecPlayer = async (e: MouseEvent) => {
     e.preventDefault();
     const steamId = e.currentTarget.getAttribute("name");
-    const result = await axios.post("http://localhost:5001/spec-player/", {
+    const result = await client.post("/spec-player/", {
       steamId,
     });
     console.log(result);
