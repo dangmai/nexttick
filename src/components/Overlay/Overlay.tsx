@@ -107,6 +107,13 @@ export function Overlay(props: GameStateProps) {
     e.stopPropagation();
     await client.post("/next-round");
   };
+  const handleToggleGameControl = async (e: MouseEvent) => {
+    e.stopPropagation();
+    if (window.require) {
+      const { ipcRenderer } = window.require("electron");
+      ipcRenderer.send("toggleGameControl");
+    }
+  };
 
   return (
     <div
@@ -182,6 +189,7 @@ export function Overlay(props: GameStateProps) {
           handlePreviousRound={handlePreviousRound}
           handleNextRound={handleNextRound}
           handlePlayPause={handleTogglePlayPause}
+          handleToggleGameControl={handleToggleGameControl}
           appState={props.appState}
         />
       </div>

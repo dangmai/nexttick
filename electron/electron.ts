@@ -1,3 +1,5 @@
+import path from "path";
+import { spawn } from "child_process";
 import { app, BrowserWindow, ipcMain, dialog, globalShortcut } from "electron";
 import Conf from "conf";
 import isDev from "electron-is-dev";
@@ -96,12 +98,46 @@ function toggleDebugWindow() {
     debugWin.close();
   }
 }
+function activateWindow(windowName: string, callback?: () => void) {
+  try {
+    const activate = path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "build",
+      "activate.exe"
+    );
+
+    const process = spawn(activate, [windowName], {
+      stdio: "inherit",
+      shell: true,
+    });
+    if (callback) {
+      process.on("exit", callback);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const toggleGameControl = () => {
+  if (overlayWin && overlayWin.isFocused()) {
+    activateWindow('"Counter-Strike: Global Offensive"');
+  } else {
+    activateWindow('"Counter-Strike: Global Offensive"', () => {
+      overlayWin?.focus();
+    });
+  }
+};
 
 app.on("ready", () => {
   createWindow();
 
   globalShortcut.register(platformInstance.getDebugShortcut(), () => {
     toggleDebugWindow();
+  });
+  globalShortcut.register("shift+f3", async () => {
+    toggleGameControl();
   });
 });
 
@@ -148,4 +184,8 @@ ipcMain.on("chooseDemo", async (event) => {
   if (demoPath && demoPath.length > 0) {
     event.reply("demoPath", demoPath[0]);
   }
+});
+
+ipcMain.on("toggleGameControl", async () => {
+  toggleGameControl();
 });

@@ -4,9 +4,10 @@ import "./ControlPanel.css";
 import { AppState } from "../../../backend/message";
 
 interface ControlPanelProps {
-  handlePlayPause: (e: MouseEvent) => void;
-  handlePreviousRound: (e: MouseEvent) => void;
-  handleNextRound: (e: MouseEvent) => void;
+  handlePlayPause?: (e: MouseEvent) => void;
+  handlePreviousRound?: (e: MouseEvent) => void;
+  handleNextRound?: (e: MouseEvent) => void;
+  handleToggleGameControl?: (e: MouseEvent) => void;
   appState?: AppState;
 }
 export const ControlPanel = (props?: ControlPanelProps) => {
@@ -40,6 +41,7 @@ export const ControlPanel = (props?: ControlPanelProps) => {
         <i
           className="fa fa-window-restore fa-lg mr-5"
           title="Switch to Game Control"
+          onClick={props?.handleToggleGameControl}
         ></i>
         <i className="fa fa-tachometer fa-lg mr-5" title="Playback Speed"></i>
         <i className="fa fa-cog fa-lg" title="More Settings"></i>
