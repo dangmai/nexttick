@@ -11,6 +11,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "./Overlay.css";
 
 import { ClientContext } from "../../App";
+import { ControlPanel } from "../ControlPanel/ControlPanel";
 
 type GameStateProps = {
   gameState?: GameState;
@@ -96,6 +97,15 @@ export function Overlay(props: GameStateProps) {
       type: "bind",
     });
   };
+  const handlePreviousRound = (e: MouseEvent) => {
+    e.stopPropagation();
+    console.log("Previous Round");
+  };
+  const handleNextRound = (e: MouseEvent) => {
+    e.stopPropagation();
+    console.log("Next Round");
+  };
+
   return (
     <div
       className="frame"
@@ -164,6 +174,13 @@ export function Overlay(props: GameStateProps) {
           onClick={handleSpecPlayer}
           id="observer-0"
         ></div>
+      </div>
+      <div style={{ position: "fixed", bottom: 0, width: "inherit" }}>
+        <ControlPanel
+          handlePreviousRound={handlePreviousRound}
+          handleNextRound={handleNextRound}
+          handlePlayPause={handleTogglePlayPause}
+        />
       </div>
     </div>
   );
