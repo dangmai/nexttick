@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -7,11 +7,10 @@ import { ClientContext } from "../../App";
 export function Preferences() {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
-  const client = useContext(ClientContext);
+  const client = useRef(useContext(ClientContext));
   useEffect(() => {
     async function fetchData() {
-      const preferences = await client.get("/preferences/");
-      console.log(preferences);
+      const preferences = await client.current.get("/preferences/");
       setWidth(preferences.data.width);
       setHeight(preferences.data.height);
     }
@@ -19,7 +18,7 @@ export function Preferences() {
   }, []);
 
   const updatePreferences = async () => {
-    await client.post("/preferences", {
+    await client.current.post("/preferences", {
       width,
       height,
     });
