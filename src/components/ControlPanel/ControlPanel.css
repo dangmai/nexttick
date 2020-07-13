@@ -1,0 +1,12 @@
+div#control-panel {
+  background-color: rgb(0, 0, 0, 0.1);
+}
+
+div#control-panel i.fa {
+  color: #e4e5e8;
+}
+
+div#control-panel i.fa:hover {
+  cursor: pointer;
+  color: white;
+}
