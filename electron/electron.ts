@@ -85,7 +85,7 @@ function toggleDebugWindow() {
       // 'build/index.html'
       debugWin.loadURL(`file://${__dirname}/../index.html/#/debug`);
     }
-    debugWin.on("closed", () => (overlayWin = null));
+    debugWin.on("closed", () => (debugWin = null));
   } else {
     debugWin.close();
   }
