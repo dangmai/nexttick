@@ -5,7 +5,6 @@ import React, {
   MouseEvent,
   KeyboardEvent,
 } from "react";
-// import Draggable from "react-draggable";
 import { GameState } from "csgo-gsi-types";
 
 import "bootstrap/dist/css/bootstrap.css";
@@ -166,19 +165,6 @@ export function Overlay(props: GameStateProps) {
           id="observer-0"
         ></div>
       </div>
-      {/* <Draggable
-        axis="both"
-        handle=".handle"
-        defaultPosition={{ x: 0, y: 0 }}
-        grid={[25, 25]}
-        scale={1}
-        bounds="parent"
-      >
-        <div className="controlPanel">
-          <div className="handle">Drag from here</div>
-          <div>This readme is really dragging on...</div>
-        </div>
-      </Draggable> */}
     </div>
   );
 }
