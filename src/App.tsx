@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
 import axios from "axios";
+import { GameState } from "csgo-gsi-types";
 
 import "fontsource-open-sans";
 
@@ -14,6 +15,8 @@ import { Overlay } from "./components/Overlay/Overlay";
 import { Preferences } from "./components/Preferences/Preferences";
 import { MainWindow } from "./components/MainWindow/MainWindow";
 
+import { Message } from "../backend/message";
+
 const clientInstance = axios.create({
   baseURL: "http://localhost:5001",
 });
@@ -21,7 +24,7 @@ const clientInstance = axios.create({
 export const ClientContext = React.createContext(clientInstance);
 
 export function App() {
-  const [gameState, setGameState] = useState();
+  const [gameState, setGameState] = useState<GameState>();
   const ws = useRef<WebSocket | null>(null);
   useEffect(() => {
     console.log("WebSocket hook is running");
@@ -30,8 +33,13 @@ export function App() {
     ws.current.onclose = () => console.log("ws closed");
 
     ws.current.onmessage = (e) => {
-      const message = JSON.parse(e.data);
-      setGameState(message);
+      const message: Message = JSON.parse(e.data);
+      if (message.type === "gsi") {
+        setGameState(message.gameState);
+      } else {
+        const { ipcRenderer } = window.require("electron");
+        ipcRenderer.send("stateChanged", message);
+      }
     };
     return () => {
       ws.current?.close();

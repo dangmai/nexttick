@@ -5,6 +5,7 @@ import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
 import { getPlatformInstance } from "../backend/platform/platform";
+import { GameStateChangeMessage } from "../backend/message";
 if (!isDev) {
   require("../backend/server");
 }
@@ -47,27 +48,31 @@ function createWindow() {
 }
 
 function createOverlay() {
-  overlayWin = new BrowserWindow({
-    frame: false,
-    transparent: true,
-    webPreferences: {
-      nodeIntegration: true,
-    },
-  });
-  overlayWin.setBounds({
-    width: config.get("width") as number,
-    height: config.get("height") as number,
-    x: 0,
-    y: 0,
-  });
+  if (!overlayWin) {
+    overlayWin = new BrowserWindow({
+      frame: false,
+      transparent: true,
+      webPreferences: {
+        nodeIntegration: true,
+      },
+    });
+    overlayWin.setBounds({
+      width: config.get("width") as number,
+      height: config.get("height") as number,
+      x: 0,
+      y: 0,
+    });
 
-  if (isDev) {
-    overlayWin.loadURL("http://localhost:3000/index.html/#/overlay");
-  } else {
-    // 'build/index.html'
-    overlayWin.loadURL(`file://${__dirname}/../index.html/#/overlay`);
+    if (isDev) {
+      overlayWin.loadURL("http://localhost:3000/index.html/#/overlay");
+    } else {
+      // 'build/index.html'
+      overlayWin.loadURL(`file://${__dirname}/../index.html/#/overlay`);
+    }
+    overlayWin.on("closed", () => (overlayWin = null));
+  } else if (!overlayWin.isVisible()) {
+    overlayWin.show();
   }
-  overlayWin.on("closed", () => (overlayWin = null));
 }
 
 function toggleDebugWindow() {
@@ -122,6 +127,16 @@ ipcMain.on("openOverlay", (event, arg) => {
 ipcMain.on("closeOverlay", (event, arg) => {
   console.log("Closing overlay");
   overlayWin?.close();
+});
+
+ipcMain.on("stateChanged", async (event, arg: GameStateChangeMessage) => {
+  console.log("App State Changed");
+  console.log(arg);
+  if (arg.gameInDemoMode && arg.demoPlaying) {
+    createOverlay();
+  } else if (!arg.gameInDemoMode) {
+    overlayWin?.close();
+  }
 });
 
 ipcMain.on("chooseDemo", async (event) => {

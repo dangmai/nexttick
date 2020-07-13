@@ -7,6 +7,7 @@ import bodyParser from "body-parser";
 import { GameState } from "csgo-gsi-types";
 
 import commands from "./commands.json";
+
 import {
   applyAutoexec,
   applyCommandsViaBind,
@@ -15,6 +16,7 @@ import {
   launchCsgo,
 } from "./console";
 import { parseDemo } from "./demo";
+import { AppState, Message } from "./message";
 
 const config = new Conf();
 let currentDemo;
@@ -32,10 +34,11 @@ setUpDefaultConfig();
 
 const app = express();
 let lastReceivedAt: number;
+let currentAppState: AppState;
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-let currentGameState: GameState;
+let ws: WebSocket;
 
 app.use(cors());
 app.set("port", process.env.PORT || 5001);
@@ -133,8 +136,61 @@ app.post("/launch", async (req, res) => {
 
 app.post("/gsi", async (req, res) => {
   const gameState: GameState = req.body;
-  currentGameState = gameState;
   lastReceivedAt = Date.now();
+
+  const gameStateMessage: Message = {
+    type: "gsi",
+    gameState,
+  };
+  if (ws) {
+    let changeMessage: Message | null = null;
+    if (
+      typeof gameState.allplayers !== "object" &&
+      currentAppState &&
+      currentAppState.demoPlaying
+    ) {
+      console.log("Demo not playing because allplayers not present");
+      currentAppState = Object.assign({}, currentAppState, {
+        demoPlaying: false,
+        gameInDemoMode: false,
+      });
+      changeMessage = {
+        type: "change",
+        ...currentAppState,
+      };
+    } else if (!currentAppState && typeof gameState.allplayers === "object") {
+      console.log(
+        "Demo playing because first time receiving GSI with allplayers"
+      );
+      currentAppState = {
+        demoPlaying: true,
+        demoPath: null,
+        gameInDemoMode: true,
+      };
+      changeMessage = {
+        type: "change",
+        ...currentAppState,
+      };
+    } else if (
+      currentAppState &&
+      !currentAppState.demoPlaying &&
+      typeof gameState.allplayers === "object"
+    ) {
+      console.log("Demo playing because we are receiving GSI");
+      currentAppState = Object.assign({}, currentAppState, {
+        demoPlaying: true,
+        gameInDemoMode: true,
+      });
+      changeMessage = {
+        type: "change",
+        ...currentAppState,
+      };
+    }
+    if (changeMessage !== null) {
+      ws.send(JSON.stringify(changeMessage));
+    }
+    ws.send(JSON.stringify(gameStateMessage));
+  }
   res.send("Done");
 });
 
@@ -163,15 +219,29 @@ function errorMiddleware(
 }
 app.use(errorMiddleware);
 
-wss.on("connection", function connection(ws) {
+wss.on("connection", function connection(conn) {
+  ws = conn;
   ws.on("message", function incoming(message) {
     console.log("received: %s", message);
   });
 
   setInterval(() => {
     const currentTimestamp = Date.now();
-    if (currentTimestamp - lastReceivedAt <= 1000) {
-      ws.send(JSON.stringify(currentGameState));
+    if (
+      currentTimestamp - lastReceivedAt > 1000 &&
+      currentAppState?.demoPlaying
+    ) {
+      currentAppState = {
+        demoPlaying: false,
+        demoPath: null,
+        gameInDemoMode: true,
+      };
+      console.log("Demo not playing because GSI hasn't received communication");
+      const changeMessage: Message = {
+        type: "change",
+        ...currentAppState,
+      };
+      ws.send(JSON.stringify(changeMessage));
     }
   }, 1000);
 });
