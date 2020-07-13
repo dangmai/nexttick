@@ -12,7 +12,7 @@ export default {
           src="https://i.imgur.com/OS0EHHg.jpg"
           style={{ maxWidth: "100%" }}
         />
-        <div style={{ position: "fixed", bottom: 0, width: "inherit" }}>
+        <div style={{ position: "absolute", bottom: 0, width: "inherit" }}>
           {storyFn()}
         </div>
       </div>

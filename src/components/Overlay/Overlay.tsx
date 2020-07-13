@@ -175,7 +175,7 @@ export function Overlay(props: GameStateProps) {
           id="observer-0"
         ></div>
       </div>
-      <div style={{ position: "fixed", bottom: 0, width: "inherit" }}>
+      <div style={{ position: "absolute", bottom: 0, width: "inherit" }}>
         <ControlPanel
           handlePreviousRound={handlePreviousRound}
           handleNextRound={handleNextRound}
