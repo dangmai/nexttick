@@ -14,8 +14,10 @@ import {
   playDemo,
   launchCsgo,
 } from "./console";
+import { parseDemo } from "./demo";
 
 const config = new Conf();
+let currentDemo;
 
 function setUpDefaultConfig() {
   if (!config.has("width")) {
@@ -114,8 +116,12 @@ interface PlayRequest {
 
 app.post("/play", async (req, res) => {
   const playRequest: PlayRequest = req.body;
+  currentDemo = playRequest.demoPath;
   await applyAutoexec();
-  await playDemo(config, playRequest.demoPath);
+  await playDemo(config, currentDemo);
+
+  const result = await parseDemo(currentDemo);
+  console.log(result);
   res.send("Starting demo");
 });
 

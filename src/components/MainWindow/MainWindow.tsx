@@ -39,10 +39,10 @@ export const MainWindow = () => {
   const handlePlayDemo = async (e: MouseEvent) => {
     e.preventDefault();
     if (demoPath) {
+      setDemoLoading(true);
       const result = await client.post("/play/", {
         demoPath,
       });
-      setDemoLoading(true);
       console.log(result);
     } else {
       console.log("No demo chosen");
