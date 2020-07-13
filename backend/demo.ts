@@ -3,6 +3,7 @@ import { promises as fsPromises } from "fs";
 import { DemoFile } from "demofile";
 
 interface Round {
+  roundNumber: number;
   time: number;
   tick: number;
 }
@@ -24,6 +25,7 @@ export const parseDemo = async (demoPath: string) => {
 
     demo.gameEvents.on("round_start", (e) => {
       result.rounds.push({
+        roundNumber: demo.gameRules.roundNumber,
         time: demo.currentTime,
         tick: demo.currentTick,
       });
