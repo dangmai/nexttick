@@ -37,7 +37,7 @@
     "ws": "7.3.1"
   },
   "scripts": {
-    "dev": "concurrently \"yarn run frontend:dev\" \"yarn run electron:dev\" \"yarn run backend:dev\"",
+    "dev": "concurrently \"yarn run frontend:dev\" \"yarn run electron:dev\" \"yarn run backend:dev\" \"yarn run ahk:dev\"",
     "frontend:dev": "cross-env BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -45,10 +45,12 @@
     "postinstall": "electron-builder install-app-deps",
     "lint": "prettier --check **/*.{ts,js,tsx,md,json,css,html}",
     "electron:dev": "wait-on http://localhost:3000 && tsc-watch -p electron --onSuccess \"electron .\"",
-    "electron:build": "yarn build && tsc -p backend && tsc -p electron && electron-builder",
+    "electron:build": "yarn build && tsc -p backend && tsc -p electron && yarn run ahk:build && electron-builder",
     "backend:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/server.js\"",
     "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "ahk:dev": "onchange scripts\\activate.ahk --  yarn run ahk:build",
+    "ahk:build": "C:\\\"Program Files\"\\AutoHotkey\\Compiler\\Ahk2exe.exe /in scripts/activate.ahk /out %cd%\\build\\activate.exe /icon ../public/favicon.ico"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -104,6 +106,7 @@
     "electron": "9.0.5",
     "electron-builder": "22.7.0",
     "nodemon": "2.0.4",
+    "onchange": "^7.0.2",
     "prettier": "2.0.5",
     "tsc-watch": "4.2.9",
     "wait-on": "5.0.1"

@@ -61,8 +61,8 @@ async function runBind() {
       __dirname,
       "..",
       "..",
-      "scripts",
-      "activate.ahk"
+      "build",
+      "activate.exe"
     );
 
     spawnSync(activate, ['"Counter-Strike: Global Offensive"', '"{f8}"'], {
