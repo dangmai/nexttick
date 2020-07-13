@@ -18,33 +18,28 @@ const CSGO_PATH = [
 
 export async function applyAutoexec() {
   await fsPromises.copyFile(
-    path.join(__dirname, "..", "..", "resources/betterDemoAutoExec.cfg"),
-    path.resolve(...CSGO_PATH, "csgo", "cfg", "betterDemoAutoExec.cfg")
+    path.join(__dirname, "..", "..", "resources/nextTickAutoExec.cfg"),
+    path.resolve(...CSGO_PATH, "csgo", "cfg", "nextTickAutoExec.cfg")
   );
   await fsPromises.copyFile(
     path.join(
       __dirname,
       "..",
       "..",
-      "resources/gamestate_integration_betterdemoui.cfg"
+      "resources/gamestate_integration_nexttick.cfg"
     ),
     path.resolve(
       ...CSGO_PATH,
       "csgo",
       "cfg",
-      "gamestate_integration_betterdemoui.cfg"
+      "gamestate_integration_nexttick.cfg"
     )
   );
 }
 
 export async function applyCommandsViaBind(commands: string | string[]) {
   console.log(`Executing commands via bind: ${commands}`);
-  const configPath = path.resolve(
-    ...CSGO_PATH,
-    "csgo",
-    "cfg",
-    "betterDemoUI.cfg"
-  );
+  const configPath = path.resolve(...CSGO_PATH, "csgo", "cfg", "nextTick.cfg");
   let fileContent;
   if (typeof commands === "string") {
     fileContent = commands;
@@ -105,7 +100,7 @@ export async function launchCsgo(config: Conf, extraArgs?: string[]) {
     "-windowed",
     "-noborder",
     "+exec",
-    "betterDemoAutoExec",
+    "nextTickAutoExec",
   ];
   if (extraArgs !== undefined) {
     options = [...options, ...extraArgs];
