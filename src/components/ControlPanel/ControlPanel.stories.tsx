@@ -20,4 +20,14 @@ export default {
   ],
 };
 
-export const defaultControlPanel = () => <ControlPanel />;
+const handleClick = () => {
+  console.log("A button was clicked");
+};
+
+export const defaultControlPanel = () => (
+  <ControlPanel
+    handleNextRound={handleClick}
+    handlePreviousRound={handleClick}
+    handlePlayPause={handleClick}
+  />
+);
