@@ -93,14 +93,14 @@ export async function launchCsgo(config: Conf, extraArgs?: string[]) {
     "0",
     "-y",
     "0",
+    "+exec",
+    "nextTickAutoExec",
     "-width",
     width.toString(),
     "-height",
     height.toString(),
     "-windowed",
     "-noborder",
-    "+exec",
-    "nextTickAutoExec",
   ];
   if (extraArgs !== undefined) {
     options = [...options, ...extraArgs];
