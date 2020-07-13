@@ -99,13 +99,13 @@ export function Overlay(props: GameStateProps) {
       type: "bind",
     });
   };
-  const handlePreviousRound = (e: MouseEvent) => {
+  const handlePreviousRound = async (e: MouseEvent) => {
     e.stopPropagation();
-    console.log("Previous Round");
+    await client.post("/previous-round");
   };
-  const handleNextRound = (e: MouseEvent) => {
+  const handleNextRound = async (e: MouseEvent) => {
     e.stopPropagation();
-    console.log("Next Round");
+    await client.post("/next-round");
   };
 
   return (

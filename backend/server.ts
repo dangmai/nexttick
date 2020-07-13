@@ -15,11 +15,14 @@ import {
   playDemo,
   launchCsgo,
 } from "./console";
-import { parseDemo } from "./demo";
+import { parseDemo, DemoResult } from "./demo";
 import { AppState, Message } from "./message";
 
 const config = new Conf();
-let currentDemo;
+let currentDemoPath: string;
+let currentGameState: GameState;
+let currentDemoContent: DemoResult;
+let lastTimePrevPressed: number;
 
 function setUpDefaultConfig() {
   if (!config.has("width")) {
@@ -117,14 +120,74 @@ interface PlayRequest {
   demoPath: string;
 }
 
+const getCurrentDemoContent = async function () {
+  if (!currentDemoContent) {
+    if (!currentDemoPath) {
+      const telnetResult = await applyCommandsViaTelnet("demo_info");
+      const regexp = /Demo contents for (.*):/;
+      const matches = telnetResult?.match(regexp);
+
+      if (matches && matches.length > 1) {
+        currentDemoPath = matches[1];
+      }
+    }
+    if (currentDemoPath) {
+      currentDemoContent = await parseDemo(currentDemoPath);
+      console.log(currentDemoContent);
+    }
+  }
+};
+app.post("/next-round", async (req, res) => {
+  await getCurrentDemoContent();
+  if (currentDemoContent) {
+    if (currentGameState?.map !== undefined) {
+      let nextRound: number;
+      if (currentGameState.map.phase === "warmup") {
+        nextRound = 0;
+      } else {
+        nextRound = currentGameState.map.round + 1;
+      }
+      const nextRoundsFound = currentDemoContent.rounds.filter(
+        (round) => round.roundNumber === nextRound
+      );
+      if (nextRoundsFound.length > 0) {
+        await applyCommandsViaBind(`demo_gototick ${nextRoundsFound[0].tick}`);
+      }
+    }
+  }
+  res.send("Next Round");
+});
+app.post("/previous-round", async (req, res) => {
+  await getCurrentDemoContent();
+  if (currentDemoContent) {
+    if (currentGameState?.map?.round !== undefined) {
+      let previousRound: number;
+      if (Date.now() - lastTimePrevPressed < 5000) {
+        previousRound = currentGameState.map.round - 1;
+      } else {
+        previousRound = currentGameState.map.round;
+      }
+      const previousRoundsFound = currentDemoContent.rounds.filter(
+        (round) => round.roundNumber === previousRound
+      );
+      if (previousRoundsFound.length > 0) {
+        await applyCommandsViaBind(
+          `demo_gototick ${previousRoundsFound[0].tick}`
+        );
+      }
+    }
+  }
+  lastTimePrevPressed = Date.now();
+  res.send("Previous Round");
+});
+
 app.post("/play", async (req, res) => {
   const playRequest: PlayRequest = req.body;
-  currentDemo = playRequest.demoPath;
+  currentDemoPath = playRequest.demoPath;
   await applyAutoexec();
-  await playDemo(config, currentDemo);
+  await playDemo(config, currentDemoPath);
 
-  const result = await parseDemo(currentDemo);
-  console.log(result);
+  currentDemoContent = await parseDemo(currentDemoPath);
   res.send("Starting demo");
 });
 
@@ -136,6 +199,7 @@ app.post("/launch", async (req, res) => {
 
 app.post("/gsi", async (req, res) => {
   const gameState: GameState = req.body;
+  currentGameState = gameState;
   lastReceivedAt = Date.now();
 
   const gameStateMessage: Message = {

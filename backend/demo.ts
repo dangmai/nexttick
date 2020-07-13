@@ -10,11 +10,11 @@ interface Round {
 interface Player {
   steamId: string;
 }
-interface DemoResult {
+export interface DemoResult {
   players: Player[];
   rounds: Round[];
 }
-export const parseDemo = async (demoPath: string) => {
+export const parseDemo = async (demoPath: string): Promise<DemoResult> => {
   return new Promise(async (resolve) => {
     const result: DemoResult = {
       rounds: [],
@@ -24,11 +24,13 @@ export const parseDemo = async (demoPath: string) => {
     const demo = new DemoFile();
 
     demo.gameEvents.on("round_start", (e) => {
-      result.rounds.push({
-        roundNumber: demo.gameRules.roundNumber,
-        time: demo.currentTime,
-        tick: demo.currentTick,
-      });
+      if (!demo.gameRules.isWarmup) {
+        result.rounds.push({
+          roundNumber: demo.gameRules.roundNumber,
+          time: demo.currentTime,
+          tick: demo.currentTick,
+        });
+      }
     });
 
     demo.on("end", (e) => {

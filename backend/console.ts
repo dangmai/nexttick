@@ -50,9 +50,11 @@ export async function applyCommandsViaBind(commands: string | string[]) {
   await runBind();
 }
 
-export async function applyCommandsViaTelnet(commands: string | string[]) {
+export async function applyCommandsViaTelnet(
+  commands: string | string[]
+): Promise<string | undefined> {
   console.log(`Executing commands via telnet: ${commands}`);
-  await sendCommands(commands);
+  return await sendCommands(commands);
 }
 
 async function runBind() {

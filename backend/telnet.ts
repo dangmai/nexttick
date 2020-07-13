@@ -2,7 +2,9 @@ import Telnet from "telnet-client";
 
 let connection: Telnet;
 
-export async function sendCommands(commands: string | string[]) {
+export async function sendCommands(
+  commands: string | string[]
+): Promise<string | undefined> {
   let requestCommand;
   if (typeof commands === "string") {
     requestCommand = commands;
@@ -22,7 +24,8 @@ export async function sendCommands(commands: string | string[]) {
   }
 
   try {
-    await connection.send(requestCommand);
+    const result = await connection.send(requestCommand);
+    return result;
   } catch (err) {
     // console.log(err);
   }
