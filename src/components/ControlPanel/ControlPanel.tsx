@@ -1,11 +1,13 @@
 import React, { MouseEvent } from "react";
 
 import "./ControlPanel.css";
+import { AppState } from "../../../backend/message";
 
 interface ControlPanelProps {
   handlePlayPause: (e: MouseEvent) => void;
   handlePreviousRound: (e: MouseEvent) => void;
   handleNextRound: (e: MouseEvent) => void;
+  appState?: AppState;
 }
 export const ControlPanel = (props?: ControlPanelProps) => {
   return (
@@ -16,7 +18,10 @@ export const ControlPanel = (props?: ControlPanelProps) => {
     >
       <div>
         <i
-          className="fa fa-play fa-lg mx-5"
+          className={
+            "fa fa-lg mx-5 " +
+            (!props?.appState?.demoPlaying ? "fa-play" : "fa-pause")
+          }
           title="Play/Pause"
           onClick={props?.handlePlayPause}
         ></i>

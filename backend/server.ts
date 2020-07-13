@@ -220,10 +220,19 @@ function errorMiddleware(
 app.use(errorMiddleware);
 
 wss.on("connection", function connection(conn) {
+  console.log("Websocket connection established");
   ws = conn;
   ws.on("message", function incoming(message) {
     console.log("received: %s", message);
   });
+  if (currentAppState) {
+    ws.send(
+      JSON.stringify({
+        type: "change",
+        ...currentAppState,
+      })
+    );
+  }
 
   setInterval(() => {
     const currentTimestamp = Date.now();
@@ -243,7 +252,7 @@ wss.on("connection", function connection(conn) {
       };
       ws.send(JSON.stringify(changeMessage));
     }
-  }, 1000);
+  }, 100);
 });
 
 server.listen(app.get("port"), () => {

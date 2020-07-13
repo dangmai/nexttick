@@ -12,9 +12,11 @@ import "./Overlay.css";
 
 import { ClientContext } from "../../App";
 import { ControlPanel } from "../ControlPanel/ControlPanel";
+import { AppState } from "../../../backend/message";
 
 type GameStateProps = {
   gameState?: GameState;
+  appState?: AppState;
 };
 export function Overlay(props: GameStateProps) {
   useEffect(() => {
@@ -180,6 +182,7 @@ export function Overlay(props: GameStateProps) {
           handlePreviousRound={handlePreviousRound}
           handleNextRound={handleNextRound}
           handlePlayPause={handleTogglePlayPause}
+          appState={props.appState}
         />
       </div>
     </div>

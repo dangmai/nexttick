@@ -48,6 +48,7 @@ function createWindow() {
 }
 
 function createOverlay() {
+  console.log("Creating overlay");
   if (!overlayWin) {
     overlayWin = new BrowserWindow({
       frame: false,

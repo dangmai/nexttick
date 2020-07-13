@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
 import axios from "axios";
+import ReconnectingWebSocket from "reconnecting-websocket";
 import { GameState } from "csgo-gsi-types";
 
 import "fontsource-open-sans";
@@ -15,7 +16,7 @@ import { Overlay } from "./components/Overlay/Overlay";
 import { Preferences } from "./components/Preferences/Preferences";
 import { MainWindow } from "./components/MainWindow/MainWindow";
 
-import { Message } from "../backend/message";
+import { AppState, Message } from "../backend/message";
 
 const clientInstance = axios.create({
   baseURL: "http://localhost:5001",
@@ -25,10 +26,12 @@ export const ClientContext = React.createContext(clientInstance);
 
 export function App() {
   const [gameState, setGameState] = useState<GameState>();
-  const ws = useRef<WebSocket | null>(null);
+  const [appState, setAppState] = useState<AppState>();
+  const ws = useRef<ReconnectingWebSocket | null>(null);
+
   useEffect(() => {
     console.log("WebSocket hook is running");
-    ws.current = new WebSocket("ws://localhost:5001");
+    ws.current = new ReconnectingWebSocket("ws://localhost:5001");
     ws.current.onopen = () => console.log("ws opened");
     ws.current.onclose = () => console.log("ws closed");
 
@@ -37,8 +40,12 @@ export function App() {
       if (message.type === "gsi") {
         setGameState(message.gameState);
       } else {
-        const { ipcRenderer } = window.require("electron");
-        ipcRenderer.send("stateChanged", message);
+        console.log("App received state change message");
+        setAppState(message);
+        if (window.require) {
+          const { ipcRenderer } = window.require("electron");
+          ipcRenderer.send("stateChanged", message);
+        }
       }
     };
     return () => {
@@ -50,7 +57,7 @@ export function App() {
       <Router>
         <Switch>
           <Route path="/overlay">
-            <Overlay gameState={gameState} />
+            <Overlay gameState={gameState} appState={appState} />
           </Route>
           <Route path="/preferences">
             <Preferences />
