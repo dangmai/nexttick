@@ -102,6 +102,11 @@ app.post("/spec-player", async (req, res) => {
   res.send("Done");
 });
 
+app.post("/open-console", async (req, res) => {
+  await applyCommandsViaBind("showConsole", true);
+  res.send("Done");
+});
+
 interface ManualCommandRequest {
   command: string;
   type: "telnet" | "bind";

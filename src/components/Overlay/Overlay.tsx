@@ -90,6 +90,10 @@ export function Overlay(props: GameStateProps) {
         command: "hideScoreboard",
       });
     }
+    if (e.keyCode === 192) {
+      console.log("Backtick pressed");
+      await client.post("/open-console/");
+    }
   };
   const handleTogglePlayPause = async (e: MouseEvent) => {
     e.preventDefault();

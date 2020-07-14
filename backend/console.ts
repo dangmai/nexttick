@@ -39,7 +39,10 @@ export async function applyAutoexec() {
   );
 }
 
-export async function applyCommandsViaBind(commands: string | string[]) {
+export async function applyCommandsViaBind(
+  commands: string | string[],
+  yieldControl: boolean = false
+) {
   console.log(`Executing commands via bind: ${commands}`);
   const configPath = path.resolve(...CSGO_PATH, "csgo", "cfg", "nextTick.cfg");
   let fileContent;
@@ -54,13 +57,17 @@ export async function applyCommandsViaBind(commands: string | string[]) {
       '"Counter-Strike: Global Offensive"',
       '"{f8}"',
       () => {
-        platformInstance.activateWindow(
-          '"NextTick - Overlay"',
-          undefined,
-          () => {
-            resolve();
-          }
-        );
+        if (yieldControl) {
+          resolve();
+        } else {
+          platformInstance.activateWindow(
+            '"NextTick - Overlay"',
+            undefined,
+            () => {
+              resolve();
+            }
+          );
+        }
       }
     );
   });
