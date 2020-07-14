@@ -115,5 +115,10 @@ export async function launchCsgo(config: Conf, extraArgs?: string[]) {
   csgoProcess.unref();
 }
 export async function playDemo(config: Conf, demoPath: string) {
-  await launchCsgo(config, ["+playDemo", demoPath]);
+  const isCsgoRunning = await platformInstance.isCsgoRunning();
+  if (!isCsgoRunning) {
+    await launchCsgo(config, ["+playDemo", demoPath]);
+  } else {
+    await applyCommandsViaTelnet(`playDemo ${demoPath}`);
+  }
 }

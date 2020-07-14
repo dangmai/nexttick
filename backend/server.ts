@@ -123,10 +123,6 @@ app.post("/manual-commands", async (req, res) => {
   }
   res.send("Done");
 });
-interface PlayRequest {
-  demoPath: string;
-}
-
 const getCurrentDemoContent = async function () {
   if (!currentDemoContent) {
     if (!currentDemoPath) {
@@ -187,6 +183,10 @@ app.post("/previous-round", async (req, res) => {
   lastTimePrevPressed = Date.now();
   res.send("Previous Round");
 });
+
+interface PlayRequest {
+  demoPath: string;
+}
 
 app.post("/play", async (req, res) => {
   const playRequest: PlayRequest = req.body;
