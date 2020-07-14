@@ -111,6 +111,9 @@ export function Overlay(props: GameStateProps) {
     e.stopPropagation();
     await client.post("/next-round");
   };
+  const handleVolumeChange = async (volume: number) => {
+    await client.post("/volume", { volume });
+  };
   const handleToggleGameControl = async (e: MouseEvent) => {
     e.stopPropagation();
     if (window.require) {
@@ -204,6 +207,7 @@ export function Overlay(props: GameStateProps) {
           handlePlayPause={handleTogglePlayPause}
           handleToggleGameControl={handleToggleGameControl}
           handleToggleXray={handleToggleXray}
+          handleVolumeChange={handleVolumeChange}
           appState={props.appState}
         />
       </div>

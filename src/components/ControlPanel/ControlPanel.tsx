@@ -1,5 +1,13 @@
-import React, { ChangeEvent, useState, MouseEvent } from "react";
+import React, {
+  ChangeEvent,
+  useEffect,
+  useState,
+  useRef,
+  RefObject,
+  MouseEvent,
+} from "react";
 import { Dropdown, DropdownMenu, DropdownToggle } from "reactstrap";
+import Slider from "nouislider";
 
 import "./ControlPanel.css";
 import { AppState } from "../../../backend/message";
@@ -10,13 +18,52 @@ interface ControlPanelProps {
   handleNextRound?: (e: MouseEvent) => void;
   handleToggleGameControl?: (e: MouseEvent) => void;
   handleToggleXray?: (showXray: boolean) => void;
+  handleVolumeChange?: (volume: number) => void;
   appState?: AppState;
 }
-export const ControlPanel = (props?: ControlPanelProps) => {
+export const ControlPanel = (props: ControlPanelProps) => {
   const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
   const [showXray, setShowXray] = useState(true);
+  const [muted, setMuted] = useState(false);
+  const [volumeBeforeMute, setVolumeBeforeMute] = useState(0);
   const toggle = () => setOptionDropdownOpen((prevState) => !prevState);
 
+  const { handleVolumeChange } = props;
+  const volumeSliderRef: RefObject<HTMLDivElement> = useRef(null);
+  const volumeSlider = useRef<Slider.noUiSlider | null>(null);
+  useEffect(() => {
+    if (volumeSliderRef.current && !volumeSlider.current) {
+      volumeSlider.current = Slider.create(volumeSliderRef.current, {
+        start: [0.5],
+        connect: [true, false],
+        step: 0.01,
+        range: { min: 0, max: 1 },
+      });
+      volumeSlider.current.on("set", (e) => {
+        if (parseFloat(e[0]) === 0) {
+          setMuted(true);
+        } else {
+          setMuted(false);
+        }
+        if (handleVolumeChange) {
+          handleVolumeChange(e[0]);
+        }
+      });
+    }
+  }, [handleVolumeChange]);
+  const handleToggleMute = (e: MouseEvent) => {
+    if (muted) {
+      setMuted(false);
+      volumeSlider.current?.set(volumeBeforeMute);
+    } else {
+      setMuted(true);
+      const currentVolume = volumeSlider.current?.get();
+      if (currentVolume && typeof currentVolume === "string") {
+        setVolumeBeforeMute(parseFloat(currentVolume));
+      }
+      volumeSlider.current?.set(0);
+    }
+  };
   const handleChangeXray = (e: ChangeEvent<HTMLInputElement>) => {
     setShowXray(e.currentTarget.checked);
   };
@@ -24,7 +71,7 @@ export const ControlPanel = (props?: ControlPanelProps) => {
     e.stopPropagation();
     e.preventDefault();
     setShowXray(!showXray);
-    if (props?.handleToggleXray) {
+    if (props.handleToggleXray) {
       props.handleToggleXray(!showXray);
     }
   };
@@ -38,27 +85,36 @@ export const ControlPanel = (props?: ControlPanelProps) => {
         <i
           className={
             "fa fa-lg mx-5 " +
-            (!props?.appState?.demoPlaying ? "fa-play" : "fa-pause")
+            (!props.appState?.demoPlaying ? "fa-play" : "fa-pause")
           }
           title="Play/Pause"
-          onClick={props?.handlePlayPause}
+          onClick={props.handlePlayPause}
         ></i>
         <i
           className="fa fa-step-backward fa-lg mr-5"
           title="Previous Round"
-          onClick={props?.handlePreviousRound}
+          onClick={props.handlePreviousRound}
         ></i>
         <i
           className="fa fa-step-forward fa-lg mr-5"
           title="Next Round"
-          onClick={props?.handleNextRound}
+          onClick={props.handleNextRound}
         ></i>
+        <i
+          className={
+            "fa fa-lg mr-3 " + (muted ? "fa-volume-off" : "fa-volume-up")
+          }
+          style={{ width: "20px" }}
+          title="Volume"
+          onClick={handleToggleMute}
+        ></i>
+        <div className="slider" id="volume-slider" ref={volumeSliderRef} />
       </div>
       <div>
         <i
           className="fa fa-window-restore fa-lg mr-5"
           title="Switch to Game Control"
-          onClick={props?.handleToggleGameControl}
+          onClick={props.handleToggleGameControl}
         ></i>
         <i className="fa fa-tachometer fa-lg mr-5" title="Playback Speed"></i>
         <Dropdown direction="up" isOpen={optionDropdownOpen} toggle={toggle}>

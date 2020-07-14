@@ -192,6 +192,15 @@ app.post("/previous-round", async (req, res) => {
   res.send("Previous Round");
 });
 
+interface VolumeRequest {
+  volume: number;
+}
+app.post("/volume", async (req, res) => {
+  const volumeRequest: VolumeRequest = req.body;
+  await applyCommandsViaTelnet(`volume ${volumeRequest.volume}`);
+  res.send(`Volume to set ${volumeRequest.volume}`);
+});
+
 interface PlayRequest {
   demoPath: string;
 }
