@@ -1,4 +1,5 @@
-import React, { MouseEvent } from "react";
+import React, { ChangeEvent, useState, MouseEvent } from "react";
+import { Dropdown, DropdownMenu, DropdownToggle } from "reactstrap";
 
 import "./ControlPanel.css";
 import { AppState } from "../../../backend/message";
@@ -8,9 +9,25 @@ interface ControlPanelProps {
   handlePreviousRound?: (e: MouseEvent) => void;
   handleNextRound?: (e: MouseEvent) => void;
   handleToggleGameControl?: (e: MouseEvent) => void;
+  handleToggleXray?: (showXray: boolean) => void;
   appState?: AppState;
 }
 export const ControlPanel = (props?: ControlPanelProps) => {
+  const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
+  const [showXray, setShowXray] = useState(true);
+  const toggle = () => setOptionDropdownOpen((prevState) => !prevState);
+
+  const handleChangeXray = (e: ChangeEvent<HTMLInputElement>) => {
+    setShowXray(e.currentTarget.checked);
+  };
+  const handleXrayContainerClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowXray(!showXray);
+    if (props?.handleToggleXray) {
+      props.handleToggleXray(!showXray);
+    }
+  };
   return (
     <div
       id="control-panel"
@@ -44,7 +61,40 @@ export const ControlPanel = (props?: ControlPanelProps) => {
           onClick={props?.handleToggleGameControl}
         ></i>
         <i className="fa fa-tachometer fa-lg mr-5" title="Playback Speed"></i>
-        <i className="fa fa-cog fa-lg" title="More Settings"></i>
+        <Dropdown direction="up" isOpen={optionDropdownOpen} toggle={toggle}>
+          <DropdownToggle
+            tag="span"
+            data-toggle="dropdown"
+            aria-expanded={optionDropdownOpen}
+          >
+            <i className="fa fa-cog fa-lg" title="More Settings"></i>
+          </DropdownToggle>
+          <DropdownMenu
+            right
+            className="dropdown-menu"
+            modifiers={{
+              offset: {
+                enabled: true,
+                offset: "0 20px",
+              },
+            }}
+          >
+            <div
+              onClick={handleXrayContainerClick}
+              className="dropdown-item pt-2 pb-0 px-3 d-flex justify-content-between"
+            >
+              <div>Show X-Ray</div>
+              <label className="custom-toggle">
+                <input
+                  type="checkbox"
+                  checked={showXray}
+                  onChange={handleChangeXray}
+                />
+                <span className="custom-toggle-slider rounded-circle" />
+              </label>
+            </div>
+          </DropdownMenu>
+        </Dropdown>
       </div>
     </div>
   );

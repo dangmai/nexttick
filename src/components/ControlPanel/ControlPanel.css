@@ -10,3 +10,24 @@ div#control-panel i.fa:hover {
   cursor: pointer;
   color: white;
 }
+
+div#control-panel div.dropdown-menu {
+  color: white;
+  background-color: rgb(0, 0, 0, 0.7);
+  border-radius: 0.1rem;
+}
+
+div#control-panel div.dropdown-menu .dropdown-item {
+  color: white;
+  font-size: 14px;
+  width: 250px;
+}
+
+div#control-panel div.dropdown-menu .dropdown-item:hover {
+  background-color: rgb(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+div#control-panel div.dropdown-menu .dropdown-item:focus {
+  background-color: rgb(0, 0, 0, 0.5);
+}

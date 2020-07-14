@@ -114,6 +114,15 @@ export function Overlay(props: GameStateProps) {
       ipcRenderer.send("toggleGameControl");
     }
   };
+  const handleToggleXray = async (showXray: boolean) => {
+    let command = "showXray";
+    if (!showXray) {
+      command = "hideXray";
+    }
+    await client.post("/telnet-commands", {
+      command,
+    });
+  };
 
   return (
     <div
@@ -190,6 +199,7 @@ export function Overlay(props: GameStateProps) {
           handleNextRound={handleNextRound}
           handlePlayPause={handleTogglePlayPause}
           handleToggleGameControl={handleToggleGameControl}
+          handleToggleXray={handleToggleXray}
           appState={props.appState}
         />
       </div>
