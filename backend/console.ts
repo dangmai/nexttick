@@ -1,11 +1,12 @@
 import { promises as fsPromises } from "fs";
 import path from "path";
-import { spawn, spawnSync } from "child_process";
+import { spawn } from "child_process";
 import os from "os";
 
 import Conf from "conf";
 
 import { sendCommands } from "./telnet";
+import { getPlatformInstance } from "./platform/platform";
 
 const STEAM_PATH = ["C:\\", "Program Files (x86)", "Steam"];
 
@@ -15,6 +16,7 @@ const CSGO_PATH = [
   "common",
   "Counter-Strike Global Offensive",
 ];
+const platformInstance = getPlatformInstance();
 
 export async function applyAutoexec() {
   await fsPromises.copyFile(
@@ -47,7 +49,21 @@ export async function applyCommandsViaBind(commands: string | string[]) {
     fileContent = commands.join(os.EOL);
   }
   await fsPromises.writeFile(configPath, fileContent, { encoding: "utf8" });
-  await runBind();
+  return new Promise((resolve) => {
+    platformInstance.activateWindow(
+      '"Counter-Strike: Global Offensive"',
+      '"{f8}"',
+      () => {
+        platformInstance.activateWindow(
+          '"NextTick - Overlay"',
+          undefined,
+          () => {
+            resolve();
+          }
+        );
+      }
+    );
+  });
 }
 
 export async function applyCommandsViaTelnet(
@@ -55,29 +71,6 @@ export async function applyCommandsViaTelnet(
 ): Promise<string | undefined> {
   console.log(`Executing commands via telnet: ${commands}`);
   return await sendCommands(commands);
-}
-
-async function runBind() {
-  try {
-    const activate = path.resolve(
-      __dirname,
-      "..",
-      "..",
-      "build",
-      "activate.exe"
-    );
-
-    spawnSync(activate, ['"Counter-Strike: Global Offensive"', '"{f8}"'], {
-      stdio: "inherit",
-      shell: true,
-    });
-    spawnSync(activate, ['"NextTick - Overlay"'], {
-      stdio: "inherit",
-      shell: true,
-    });
-  } catch (err) {
-    console.log(err);
-  }
 }
 
 export async function launchCsgo(config: Conf, extraArgs?: string[]) {
