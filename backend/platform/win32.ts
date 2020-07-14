@@ -1,4 +1,4 @@
-import { spawn } from "child_process";
+import { exec, spawn, ExecException } from "child_process";
 import path from "path";
 
 export function getDebugShortcut(): string {
@@ -31,4 +31,14 @@ export function activateWindow(
   if (callback) {
     process.on("exit", callback);
   }
+}
+
+export async function isCsgoRunning(): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    exec("tasklist", {}, (err: ExecException | null, stdout: string) => {
+      if (err) reject(err);
+
+      resolve(stdout.toLowerCase().indexOf("csgo.exe") > -1);
+    });
+  });
 }

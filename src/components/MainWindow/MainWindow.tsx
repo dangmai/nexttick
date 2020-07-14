@@ -44,6 +44,7 @@ export const MainWindow = () => {
         demoPath,
       });
       console.log(result);
+      setDemoLoading(false);
     } else {
       console.log("No demo chosen");
     }

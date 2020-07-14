@@ -8,6 +8,7 @@ export interface PlatformCommands {
     keyToSend?: string,
     callback?: () => void
   ): void;
+  isCsgoRunning(): Promise<boolean>;
 }
 
 export function getPlatformInstance(): PlatformCommands {

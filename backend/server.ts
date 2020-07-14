@@ -7,6 +7,7 @@ import bodyParser from "body-parser";
 import { GameState } from "csgo-gsi-types";
 
 import commands from "./commands.json";
+import { getPlatformInstance } from "./platform/platform";
 
 import {
   applyAutoexec,
@@ -19,6 +20,7 @@ import { parseDemo, DemoResult } from "./demo";
 import { AppState, Message } from "./message";
 
 const config = new Conf();
+const platformInstance = getPlatformInstance();
 let currentDemoPath: string;
 let currentGameState: GameState;
 let currentDemoContent: DemoResult;
@@ -288,6 +290,44 @@ function errorMiddleware(
 }
 app.use(errorMiddleware);
 
+const getUpdatedAppState = async function () {
+  // First check if CSGO is still running
+  const isCsgoRunning = await platformInstance.isCsgoRunning();
+  if (!isCsgoRunning && currentAppState && currentAppState.gameInDemoMode) {
+    currentAppState = {
+      demoPlaying: false,
+      demoPath: null,
+      gameInDemoMode: false,
+    };
+    console.log("Demo not playing because CSGO process is no longer running");
+    const changeMessage: Message = {
+      type: "change",
+      ...currentAppState,
+    };
+    ws.send(JSON.stringify(changeMessage));
+    return;
+  }
+
+  // Then check if GSI has stopped receiving communication
+  const currentTimestamp = Date.now();
+  if (
+    currentTimestamp - lastReceivedAt > 1000 &&
+    currentAppState?.demoPlaying
+  ) {
+    currentAppState = {
+      demoPlaying: false,
+      demoPath: null,
+      gameInDemoMode: true,
+    };
+    console.log("Demo not playing because GSI hasn't received communication");
+    const changeMessage: Message = {
+      type: "change",
+      ...currentAppState,
+    };
+    ws.send(JSON.stringify(changeMessage));
+  }
+};
+
 wss.on("connection", function connection(conn) {
   console.log("Websocket connection established");
   ws = conn;
@@ -304,24 +344,8 @@ wss.on("connection", function connection(conn) {
   }
 
   setInterval(() => {
-    const currentTimestamp = Date.now();
-    if (
-      currentTimestamp - lastReceivedAt > 1000 &&
-      currentAppState?.demoPlaying
-    ) {
-      currentAppState = {
-        demoPlaying: false,
-        demoPath: null,
-        gameInDemoMode: true,
-      };
-      console.log("Demo not playing because GSI hasn't received communication");
-      const changeMessage: Message = {
-        type: "change",
-        ...currentAppState,
-      };
-      ws.send(JSON.stringify(changeMessage));
-    }
-  }, 100);
+    getUpdatedAppState();
+  }, 1000);
 });
 
 server.listen(app.get("port"), () => {
