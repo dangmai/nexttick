@@ -80,7 +80,7 @@ export async function applyCommandsViaTelnet(
   return await sendCommands(commands);
 }
 
-export async function launchCsgo(config: Conf, extraArgs?: string[]) {
+export function launchCsgo(config: Conf, extraArgs?: string[]) {
   const steamPath = path.resolve(...STEAM_PATH);
   let width = config.get("width") as number;
   let height = config.get("height") as number;
@@ -117,7 +117,7 @@ export async function launchCsgo(config: Conf, extraArgs?: string[]) {
 export async function playDemo(config: Conf, demoPath: string) {
   const isCsgoRunning = await platformInstance.isCsgoRunning();
   if (!isCsgoRunning) {
-    await launchCsgo(config, ["+playDemo", demoPath]);
+    launchCsgo(config, ["+playDemo", demoPath]);
   } else {
     await applyCommandsViaTelnet(`playDemo ${demoPath}`);
   }

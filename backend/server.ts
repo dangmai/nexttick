@@ -25,6 +25,7 @@ let currentDemoPath: string;
 let currentGameState: GameState;
 let currentDemoContent: DemoResult;
 let lastTimePrevPressed: number;
+let lastTimeGamePolled: number;
 
 function setUpDefaultConfig() {
   if (!config.has("width")) {
@@ -123,15 +124,22 @@ app.post("/manual-commands", async (req, res) => {
   }
   res.send("Done");
 });
+const getCurrentDemoPath = async function () {
+  const telnetResult = await applyCommandsViaTelnet("demo_info");
+  const regexp = /Demo contents for (.*):/;
+  const matches = telnetResult?.match(regexp);
+
+  if (matches && matches.length > 1) {
+    console.log(`Found current demo path: ${matches[1]}`);
+    return matches[1];
+  }
+};
 const getCurrentDemoContent = async function () {
   if (!currentDemoContent) {
     if (!currentDemoPath) {
-      const telnetResult = await applyCommandsViaTelnet("demo_info");
-      const regexp = /Demo contents for (.*):/;
-      const matches = telnetResult?.match(regexp);
-
-      if (matches && matches.length > 1) {
-        currentDemoPath = matches[1];
+      const demoPath = await getCurrentDemoPath();
+      if (demoPath) {
+        currentDemoPath = demoPath;
       }
     }
     if (currentDemoPath) {
@@ -292,20 +300,33 @@ app.use(errorMiddleware);
 
 const getUpdatedAppState = async function () {
   // First check if CSGO is still running
-  const isCsgoRunning = await platformInstance.isCsgoRunning();
-  if (!isCsgoRunning && currentAppState && currentAppState.gameInDemoMode) {
-    currentAppState = {
-      demoPlaying: false,
-      demoPath: null,
-      gameInDemoMode: false,
-    };
-    console.log("Demo not playing because CSGO process is no longer running");
-    const changeMessage: Message = {
-      type: "change",
-      ...currentAppState,
-    };
-    ws.send(JSON.stringify(changeMessage));
-    return;
+  if (!lastTimeGamePolled || Date.now() - lastTimeGamePolled > 10000) {
+    lastTimeGamePolled = Date.now();
+    const isCsgoRunning = await platformInstance.isCsgoRunning();
+    if (!isCsgoRunning && currentAppState && currentAppState.gameInDemoMode) {
+      currentAppState = {
+        demoPlaying: false,
+        demoPath: null,
+        gameInDemoMode: false,
+      };
+      console.log("Demo not playing because CSGO process is no longer running");
+      const changeMessage: Message = {
+        type: "change",
+        ...currentAppState,
+      };
+      ws.send(JSON.stringify(changeMessage));
+      return;
+    }
+    if (isCsgoRunning) {
+      // Use Telnet to get updated state from CSGO
+      const demoPath = await getCurrentDemoPath();
+      if (demoPath && demoPath !== currentDemoPath) {
+        console.log("Setting new demo path");
+        currentDemoPath = demoPath;
+        currentDemoContent = await parseDemo(currentDemoPath);
+        console.log(currentDemoContent);
+      }
+    }
   }
 
   // Then check if GSI has stopped receiving communication
@@ -342,11 +363,11 @@ wss.on("connection", function connection(conn) {
       })
     );
   }
-
-  setInterval(() => {
-    getUpdatedAppState();
-  }, 1000);
 });
+
+setInterval(() => {
+  getUpdatedAppState();
+}, 1000);
 
 server.listen(app.get("port"), () => {
   console.log(

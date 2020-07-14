@@ -1,6 +1,6 @@
 import Telnet from "telnet-client";
 
-let connection: Telnet;
+let connection: Telnet | null;
 
 async function connectToServer() {
   if (!connection) {
@@ -24,16 +24,16 @@ export async function sendCommands(
   } else {
     requestCommand = commands.join(";");
   }
-  connectToServer();
-
   try {
-    const result = await connection.send(requestCommand);
+    await connectToServer();
+    const result = await connection?.send(requestCommand);
     return result;
   } catch (err) {
     if (err.message === "socket not writable") {
       await connectToServer();
-      sendCommands(commands);
+      await sendCommands(commands);
     } else if (err.message !== "response not received") {
+      connection = null;
       throw err;
     }
   }
