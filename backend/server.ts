@@ -129,18 +129,21 @@ interface GameConfigOutput {
   volume: number;
   safezoneX: number;
   safezoneY: number;
+  showXray: boolean;
 }
 const getCurrentGameConfig = async function (): Promise<GameConfigOutput> {
   const gameConfigOutput: GameConfigOutput = {
     volume: 0.5,
     safezoneX: 1,
     safezoneY: 1,
+    showXray: true,
   };
   const telnetResult = await applyCommandsViaTelnet([
     "demo_info",
     "volume",
     "safezonex",
     "safezoney",
+    "spec_show_xray",
   ]);
   let matches = telnetResult?.match(/Demo contents for (.*):/);
   if (matches && matches.length > 1) {
@@ -157,6 +160,10 @@ const getCurrentGameConfig = async function (): Promise<GameConfigOutput> {
   matches = telnetResult?.match(/"safezoney" = "(\d+((.|,)\d+)?)"/);
   if (matches && matches.length > 1) {
     gameConfigOutput.safezoneY = parseFloat(matches[1]);
+  }
+  matches = telnetResult?.match(/"spec_show_xray" = "(\d+((.|,)\d+)?)"/);
+  if (matches && matches.length > 1) {
+    gameConfigOutput.showXray = parseFloat(matches[1]) === 1;
   }
   console.log("Found current game config:");
   console.log(gameConfigOutput);
@@ -285,6 +292,7 @@ app.post("/gsi", async (req, res) => {
         volume: 0.5,
         safezoneX: 1,
         safezoneY: 1,
+        showXray: true,
       };
       changeMessage = {
         type: "change",
@@ -351,6 +359,7 @@ const getUpdatedAppState = async function () {
         volume: 0.5,
         safezoneX: 1,
         safezoneY: 1,
+        showXray: true,
       };
       console.log("Demo not playing because CSGO process is no longer running");
       const changeMessage: Message = {
@@ -383,7 +392,8 @@ const getUpdatedAppState = async function () {
       if (
         currentGameOutput.volume !== currentAppState.volume ||
         currentGameOutput.safezoneX !== currentAppState.safezoneX ||
-        currentGameOutput.safezoneY !== currentAppState.safezoneY
+        currentGameOutput.safezoneY !== currentAppState.safezoneY ||
+        currentGameOutput.showXray !== currentAppState.showXray
       ) {
         currentAppState = Object.assign({}, currentAppState, {
           ...currentGameOutput,

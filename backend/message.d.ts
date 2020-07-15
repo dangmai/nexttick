@@ -11,6 +11,7 @@ export interface AppState {
   volume: number;
   safezoneX: number;
   safezoneY: number;
+  showXray: boolean;
 }
 export interface GameStateChangeMessage extends AppState {
   type: "change";

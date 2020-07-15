@@ -39,8 +39,16 @@ export const ControlPanel = (props: ControlPanelProps) => {
   const volumeSliderRef: RefObject<HTMLDivElement> = useRef(null);
   const volumeSlider = useRef<Slider.noUiSlider | null>(null);
   const previousGameVolume = usePrevious(appState?.volume);
+  const previousGameShowXray = usePrevious(appState?.showXray);
 
   let gameVolume: number | undefined = appState?.volume;
+  if (
+    props.appState?.showXray !== undefined &&
+    props.appState.showXray !== previousGameShowXray &&
+    props.appState.showXray !== showXray
+  ) {
+    setShowXray(props.appState?.showXray);
+  }
   useEffect(() => {
     if (volumeSliderRef.current && !volumeSlider.current) {
       volumeSlider.current = Slider.create(volumeSliderRef.current, {
