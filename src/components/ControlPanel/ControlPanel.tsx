@@ -21,6 +21,13 @@ interface ControlPanelProps {
   handleVolumeChange?: (volume: number) => void;
   appState?: AppState;
 }
+function usePrevious(value: any) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 export const ControlPanel = (props: ControlPanelProps) => {
   const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
   const [showXray, setShowXray] = useState(true);
@@ -28,9 +35,12 @@ export const ControlPanel = (props: ControlPanelProps) => {
   const [volumeBeforeMute, setVolumeBeforeMute] = useState(0);
   const toggle = () => setOptionDropdownOpen((prevState) => !prevState);
 
-  const { handleVolumeChange } = props;
+  const { handleVolumeChange, appState } = props;
   const volumeSliderRef: RefObject<HTMLDivElement> = useRef(null);
   const volumeSlider = useRef<Slider.noUiSlider | null>(null);
+  const previousGameVolume = usePrevious(appState?.volume);
+
+  let gameVolume: number | undefined = appState?.volume;
   useEffect(() => {
     if (volumeSliderRef.current && !volumeSlider.current) {
       volumeSlider.current = Slider.create(volumeSliderRef.current, {
@@ -50,7 +60,20 @@ export const ControlPanel = (props: ControlPanelProps) => {
         }
       });
     }
-  }, [handleVolumeChange]);
+    const appVolumeStr = volumeSlider.current?.get();
+    let appVolume;
+    if (appVolumeStr && typeof appVolumeStr === "string") {
+      appVolume = parseFloat(appVolumeStr);
+    }
+    if (
+      gameVolume !== undefined &&
+      gameVolume !== appVolume &&
+      gameVolume !== previousGameVolume &&
+      volumeSlider.current
+    ) {
+      volumeSlider.current.set(gameVolume);
+    }
+  }, [handleVolumeChange, gameVolume, previousGameVolume]);
   const handleToggleMute = (e: MouseEvent) => {
     if (muted) {
       setMuted(false);

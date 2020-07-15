@@ -124,22 +124,50 @@ app.post("/manual-commands", async (req, res) => {
   }
   res.send("Done");
 });
-const getCurrentDemoPath = async function () {
-  const telnetResult = await applyCommandsViaTelnet("demo_info");
-  const regexp = /Demo contents for (.*):/;
-  const matches = telnetResult?.match(regexp);
-
+interface GameConfigOutput {
+  demoPath?: string;
+  volume: number;
+  safezoneX: number;
+  safezoneY: number;
+}
+const getCurrentGameConfig = async function (): Promise<GameConfigOutput> {
+  const gameConfigOutput: GameConfigOutput = {
+    volume: 0.5,
+    safezoneX: 1,
+    safezoneY: 1,
+  };
+  const telnetResult = await applyCommandsViaTelnet([
+    "demo_info",
+    "volume",
+    "safezonex",
+    "safezoney",
+  ]);
+  let matches = telnetResult?.match(/Demo contents for (.*):/);
   if (matches && matches.length > 1) {
-    console.log(`Found current demo path: ${matches[1]}`);
-    return matches[1];
+    gameConfigOutput.demoPath = matches[1];
   }
+  matches = telnetResult?.match(/"volume" = "(\d+((.|,)\d+)?)"/);
+  if (matches && matches.length > 1) {
+    gameConfigOutput.volume = parseFloat(matches[1]);
+  }
+  matches = telnetResult?.match(/"safezonex" = "(\d+((.|,)\d+)?)"/);
+  if (matches && matches.length > 1) {
+    gameConfigOutput.safezoneX = parseFloat(matches[1]);
+  }
+  matches = telnetResult?.match(/"safezoney" = "(\d+((.|,)\d+)?)"/);
+  if (matches && matches.length > 1) {
+    gameConfigOutput.safezoneY = parseFloat(matches[1]);
+  }
+  console.log("Found current game config:");
+  console.log(gameConfigOutput);
+  return gameConfigOutput;
 };
 const getCurrentDemoContent = async function () {
   if (!currentDemoContent) {
     if (!currentDemoPath) {
-      const demoPath = await getCurrentDemoPath();
-      if (demoPath) {
-        currentDemoPath = demoPath;
+      const currentGameOutput = await getCurrentGameConfig();
+      if (currentGameOutput.demoPath) {
+        currentDemoPath = currentGameOutput.demoPath;
       }
     }
     if (currentDemoPath) {
@@ -254,6 +282,9 @@ app.post("/gsi", async (req, res) => {
         demoPlaying: true,
         demoPath: null,
         gameInDemoMode: true,
+        volume: 0.5,
+        safezoneX: 1,
+        safezoneY: 1,
       };
       changeMessage = {
         type: "change",
@@ -309,7 +340,7 @@ app.use(errorMiddleware);
 
 const getUpdatedAppState = async function () {
   // First check if CSGO is still running
-  if (!lastTimeGamePolled || Date.now() - lastTimeGamePolled > 10000) {
+  if (!lastTimeGamePolled || Date.now() - lastTimeGamePolled > 5000) {
     lastTimeGamePolled = Date.now();
     const isCsgoRunning = await platformInstance.isCsgoRunning();
     if (!isCsgoRunning && currentAppState && currentAppState.gameInDemoMode) {
@@ -317,6 +348,9 @@ const getUpdatedAppState = async function () {
         demoPlaying: false,
         demoPath: null,
         gameInDemoMode: false,
+        volume: 0.5,
+        safezoneX: 1,
+        safezoneY: 1,
       };
       console.log("Demo not playing because CSGO process is no longer running");
       const changeMessage: Message = {
@@ -328,12 +362,37 @@ const getUpdatedAppState = async function () {
     }
     if (isCsgoRunning) {
       // Use Telnet to get updated state from CSGO
-      const demoPath = await getCurrentDemoPath();
-      if (demoPath && demoPath !== currentDemoPath) {
+      const currentGameOutput = await getCurrentGameConfig();
+      if (
+        currentGameOutput.demoPath &&
+        currentGameOutput.demoPath !== currentDemoPath
+      ) {
         console.log("Setting new demo path");
-        currentDemoPath = demoPath;
+        currentDemoPath = currentGameOutput.demoPath;
         currentDemoContent = await parseDemo(currentDemoPath);
         console.log(currentDemoContent);
+        currentAppState = Object.assign({}, currentAppState, {
+          demoPath: currentDemoPath,
+        });
+        const changeMessage: Message = {
+          type: "change",
+          ...currentAppState,
+        };
+        ws.send(JSON.stringify(changeMessage));
+      }
+      if (
+        currentGameOutput.volume !== currentAppState.volume ||
+        currentGameOutput.safezoneX !== currentAppState.safezoneX ||
+        currentGameOutput.safezoneY !== currentAppState.safezoneY
+      ) {
+        currentAppState = Object.assign({}, currentAppState, {
+          ...currentGameOutput,
+        });
+        const changeMessage: Message = {
+          type: "change",
+          ...currentAppState,
+        };
+        ws.send(JSON.stringify(changeMessage));
       }
     }
   }
@@ -344,11 +403,10 @@ const getUpdatedAppState = async function () {
     currentTimestamp - lastReceivedAt > 1000 &&
     currentAppState?.demoPlaying
   ) {
-    currentAppState = {
+    currentAppState = Object.assign({}, currentAppState, {
       demoPlaying: false,
-      demoPath: null,
       gameInDemoMode: true,
-    };
+    });
     console.log("Demo not playing because GSI hasn't received communication");
     const changeMessage: Message = {
       type: "change",

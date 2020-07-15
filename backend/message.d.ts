@@ -8,6 +8,9 @@ export interface AppState {
   gameInDemoMode: boolean;
   demoPlaying: boolean;
   demoPath: string | null;
+  volume: number;
+  safezoneX: number;
+  safezoneY: number;
 }
 export interface GameStateChangeMessage extends AppState {
   type: "change";
