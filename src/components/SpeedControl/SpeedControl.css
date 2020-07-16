@@ -16,3 +16,7 @@ div#speed-control button:focus {
 div#speed-control div.noUi-pips div.noUi-value {
   display: none;
 }
+
+div#speed-control div.noUi-pips {
+  height: 35px;
+}
