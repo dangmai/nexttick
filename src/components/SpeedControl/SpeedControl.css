@@ -1,0 +1,13 @@
+div#speed-control {
+  height: 100px;
+}
+div#speed-control button {
+  width: 50px;
+  text-transform: none;
+  font-size: 14px;
+  padding: 10px 2px;
+}
+
+div#speed-control div.noUi-pips div.noUi-value {
+  display: none;
+}

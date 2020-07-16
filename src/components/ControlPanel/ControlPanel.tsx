@@ -10,6 +10,7 @@ import { Dropdown, DropdownMenu, DropdownToggle } from "reactstrap";
 import Slider from "nouislider";
 
 import "./ControlPanel.css";
+import { SpeedControl } from "../SpeedControl/SpeedControl";
 import { AppState } from "../../../backend/message";
 
 interface ControlPanelProps {
@@ -19,6 +20,7 @@ interface ControlPanelProps {
   handleToggleGameControl?: (e: MouseEvent) => void;
   handleToggleXray?: (showXray: boolean) => void;
   handleVolumeChange?: (volume: number) => void;
+  handleSpeedChange?: (speed: number) => void;
   appState?: AppState;
 }
 function usePrevious(value: any) {
@@ -30,12 +32,17 @@ function usePrevious(value: any) {
 }
 export const ControlPanel = (props: ControlPanelProps) => {
   const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
+  const [speedDropdownOpen, setSpeedDropdownOpen] = useState(false);
   const [showXray, setShowXray] = useState(true);
   const [muted, setMuted] = useState(false);
   const [volumeBeforeMute, setVolumeBeforeMute] = useState(0);
-  const toggle = () => setOptionDropdownOpen((prevState) => !prevState);
+  const [speed, setSpeed] = useState(1);
+  const toggleSpeedDropdown = () =>
+    setSpeedDropdownOpen((prevState) => !prevState);
+  const toggleOptionDropdown = () =>
+    setOptionDropdownOpen((prevState) => !prevState);
 
-  const { handleVolumeChange, appState } = props;
+  const { handleVolumeChange, handleSpeedChange, appState } = props;
   const volumeSliderRef: RefObject<HTMLDivElement> = useRef(null);
   const volumeSlider = useRef<Slider.noUiSlider | null>(null);
   const previousGameVolume = usePrevious(appState?.volume);
@@ -49,6 +56,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
   ) {
     setShowXray(props.appState?.showXray);
   }
+
   useEffect(() => {
     if (volumeSliderRef.current && !volumeSlider.current) {
       volumeSlider.current = Slider.create(volumeSliderRef.current, {
@@ -82,6 +90,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
       volumeSlider.current.set(gameVolume);
     }
   }, [handleVolumeChange, gameVolume, previousGameVolume]);
+
   const handleToggleMute = (e: MouseEvent) => {
     if (muted) {
       setMuted(false);
@@ -147,8 +156,48 @@ export const ControlPanel = (props: ControlPanelProps) => {
           title="Switch to Game Control"
           onClick={props.handleToggleGameControl}
         ></i>
-        <i className="fa fa-tachometer fa-lg mr-5" title="Playback Speed"></i>
-        <Dropdown direction="up" isOpen={optionDropdownOpen} toggle={toggle}>
+        <Dropdown
+          direction="up"
+          isOpen={speedDropdownOpen}
+          toggle={toggleSpeedDropdown}
+        >
+          <DropdownToggle
+            tag="span"
+            data-toggle="dropdown"
+            aria-expanded={speedDropdownOpen}
+          >
+            <i
+              className="fa fa-tachometer fa-lg mr-5"
+              title="Playback Speed"
+            ></i>
+          </DropdownToggle>
+          <DropdownMenu
+            right
+            className="dropdown-menu"
+            id="speed-dropdown"
+            modifiers={{
+              offset: {
+                enabled: true,
+                offset: "0 20px",
+              },
+            }}
+          >
+            <SpeedControl
+              speed={speed}
+              handleSpeedChange={(newSpeed) => {
+                if (handleSpeedChange) {
+                  handleSpeedChange(newSpeed);
+                }
+                setSpeed(newSpeed);
+              }}
+            />
+          </DropdownMenu>
+        </Dropdown>
+        <Dropdown
+          direction="up"
+          isOpen={optionDropdownOpen}
+          toggle={toggleOptionDropdown}
+        >
           <DropdownToggle
             tag="span"
             data-toggle="dropdown"
