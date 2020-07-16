@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -75,8 +76,8 @@ export function Overlay(props: GameStateProps) {
     }
   };
   const handleKeyDown = async (e: KeyboardEvent) => {
-    e.preventDefault();
     if (e.keyCode === 9 && !e.repeat) {
+      e.preventDefault();
       console.log("Tab held");
       await client.post("/telnet-commands/", {
         command: "showScoreboard",
@@ -121,6 +122,10 @@ export function Overlay(props: GameStateProps) {
       ipcRenderer.send("toggleGameControl");
     }
   };
+  const handleSpeedChange = useCallback(async (speed: number) => {
+    console.log(`New speed detected ${speed}`);
+    await client.post("/speed", { speed });
+  }, []);
   const handleToggleXray = async (showXray: boolean) => {
     let command = "showXray";
     if (!showXray) {
@@ -208,6 +213,7 @@ export function Overlay(props: GameStateProps) {
           handleToggleGameControl={handleToggleGameControl}
           handleToggleXray={handleToggleXray}
           handleVolumeChange={handleVolumeChange}
+          handleSpeedChange={handleSpeedChange}
           appState={props.appState}
         />
       </div>

@@ -24,10 +24,15 @@ const handleClick = () => {
   console.log("A button was clicked");
 };
 
+const handleSpeedChange = (speed: number) => {
+  console.log(`New speed detected: ${speed}`);
+};
+
 export const defaultControlPanel = () => (
   <ControlPanel
     handleNextRound={handleClick}
     handlePreviousRound={handleClick}
     handlePlayPause={handleClick}
+    handleSpeedChange={handleSpeedChange}
   />
 );

@@ -21,7 +21,7 @@ export const SpeedControl = (props: SpeedControlProps) => {
         connect: [true, false],
         range: {
           min: [0.25],
-          "25%": [1],
+          "20%": [1],
           max: [10],
         },
         pips: {
@@ -31,7 +31,7 @@ export const SpeedControl = (props: SpeedControlProps) => {
       });
       speedSlider.current.on("set", (e) => {
         if (handleSpeedChange) {
-          handleSpeedChange(e[0]);
+          handleSpeedChange(parseFloat(e[0]));
         }
       });
     }
@@ -40,9 +40,7 @@ export const SpeedControl = (props: SpeedControlProps) => {
 
   const handleManualSpeed = (newSpeed: number) => (e: MouseEvent) => {
     e.preventDefault();
-    if (handleSpeedChange) {
-      handleSpeedChange(newSpeed);
-    }
+    speedSlider.current?.set(newSpeed);
   };
 
   return (

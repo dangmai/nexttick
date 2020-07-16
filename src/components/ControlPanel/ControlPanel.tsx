@@ -27,7 +27,7 @@ function usePrevious(value: any) {
   const ref = useRef();
   useEffect(() => {
     ref.current = value;
-  });
+  }, [value]);
   return ref.current;
 }
 export const ControlPanel = (props: ControlPanelProps) => {
@@ -90,6 +90,12 @@ export const ControlPanel = (props: ControlPanelProps) => {
       volumeSlider.current.set(gameVolume);
     }
   }, [handleVolumeChange, gameVolume, previousGameVolume]);
+
+  useEffect(() => {
+    if (handleSpeedChange) {
+      handleSpeedChange(speed);
+    }
+  }, [handleSpeedChange, speed]);
 
   const handleToggleMute = (e: MouseEvent) => {
     if (muted) {
@@ -185,9 +191,6 @@ export const ControlPanel = (props: ControlPanelProps) => {
             <SpeedControl
               speed={speed}
               handleSpeedChange={(newSpeed) => {
-                if (handleSpeedChange) {
-                  handleSpeedChange(newSpeed);
-                }
                 setSpeed(newSpeed);
               }}
             />

@@ -233,7 +233,16 @@ interface VolumeRequest {
 app.post("/volume", async (req, res) => {
   const volumeRequest: VolumeRequest = req.body;
   await applyCommandsViaTelnet(`volume ${volumeRequest.volume}`);
-  res.send(`Volume to set ${volumeRequest.volume}`);
+  res.send(`Volume set to ${volumeRequest.volume}`);
+});
+
+interface SpeedRequest {
+  speed: number;
+}
+app.post("/speed", async (req, res) => {
+  const speedRequest: SpeedRequest = req.body;
+  await applyCommandsViaTelnet(`demo_timescale ${speedRequest.speed}`);
+  res.send(`Speed set to ${speedRequest.speed}`);
 });
 
 interface PlayRequest {
