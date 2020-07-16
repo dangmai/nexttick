@@ -20,3 +20,7 @@ div#speed-control div.noUi-pips div.noUi-value {
 div#speed-control div.noUi-pips {
   height: 35px;
 }
+
+div#speed-control div.noUi-pips:hover {
+  cursor: default;
+}
