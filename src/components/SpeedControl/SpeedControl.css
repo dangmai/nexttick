@@ -7,6 +7,11 @@ div#speed-control button {
   font-size: 14px;
   padding: 10px 2px;
 }
+div#speed-control button:focus {
+  background-color: rgb(244, 245, 247);
+  border-color: rgb(244, 245, 247);
+  color: rgb(33, 37, 41);
+}
 
 div#speed-control div.noUi-pips div.noUi-value {
   display: none;
