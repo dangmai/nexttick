@@ -13,7 +13,7 @@ export default {
           style={{ maxWidth: "100%" }}
         />
         <div style={{ position: "absolute", bottom: 0, width: "inherit" }}>
-          {storyFn()}
+          {storyFn({})}
         </div>
       </div>
     ),
