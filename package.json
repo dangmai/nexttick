@@ -15,6 +15,7 @@
   "main": "build/electron/electron.js",
   "homepage": ".",
   "dependencies": {
+    "@reduxjs/toolkit": "1.4.0",
     "argon-design-system-react": "1.1.0",
     "axios": "0.19.2",
     "body-parser": "1.19.0",
@@ -28,6 +29,7 @@
     "fontsource-open-sans": "2.1.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
+    "react-redux": "7.2.0",
     "react-router-dom": "5.2.0",
     "react-scripts": "3.4.1",
     "reactstrap": "8.5.1",
@@ -97,6 +99,7 @@
     "@types/nouislider": "^9.0.7",
     "@types/react": "16.9.42",
     "@types/react-dom": "16.9.0",
+    "@types/react-redux": "^7.1.9",
     "@types/react-router-dom": "5.1.5",
     "@types/reactstrap": "8.5.0",
     "@types/testing-library__dom": "7.5.0",
