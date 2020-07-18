@@ -19,7 +19,7 @@ app.post("/ws/appstate", (req, res) => {
   if (ws) {
     const message = {
       type: "change",
-      ...JSON.parse(req.body),
+      ...req.body,
     };
     ws.send(JSON.stringify(message));
   }
@@ -29,7 +29,7 @@ app.post("/ws/gamestate", (req, res) => {
   if (ws) {
     const message = {
       type: "gsi",
-      ...JSON.parse(req.body),
+      ...req.body,
     };
     ws.send(JSON.stringify(message));
   }
