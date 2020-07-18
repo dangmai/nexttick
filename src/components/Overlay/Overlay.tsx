@@ -6,6 +6,8 @@ import React, {
   MouseEvent,
   KeyboardEvent,
 } from "react";
+import { createSlice } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
 import { GameState } from "csgo-gsi-types";
 
 import "bootstrap/dist/css/bootstrap.css";
@@ -15,9 +17,37 @@ import { ClientContext } from "../../App";
 import { ControlPanel } from "../ControlPanel/ControlPanel";
 import { AppState } from "../../../backend/message";
 
+export const controlPanelSlice = createSlice({
+  name: "controlPanel",
+  initialState: {
+    demoPath: "",
+    playing: true,
+    speed: 1,
+    volume: 0.5,
+  },
+  reducers: {
+    setDemoPath: (state, action) => {
+      state.demoPath = action.payload;
+    },
+    togglePlaying: (state) => {
+      state.playing = !state.playing;
+    },
+    setPlaying: (state, action) => {
+      state.playing = action.payload;
+    },
+    setSpeed: (state, action) => {
+      state.speed = action.payload;
+    },
+    setVolume: (state, action) => {
+      state.volume = action.payload;
+    },
+  },
+});
+
 type GameStateProps = {
   gameState?: GameState;
   appState?: AppState;
+  handleTogglePlayPause?: (e: MouseEvent) => void;
 };
 export function Overlay(props: GameStateProps) {
   useEffect(() => {
@@ -96,14 +126,6 @@ export function Overlay(props: GameStateProps) {
       await client.post("/open-console/");
     }
   };
-  const handleTogglePlayPause = async (e: MouseEvent) => {
-    e.preventDefault();
-
-    await client.post("/manual-commands", {
-      command: "demo_togglepause",
-      type: "bind",
-    });
-  };
   const handlePreviousRound = async (e: MouseEvent) => {
     e.stopPropagation();
     await client.post("/previous-round");
@@ -143,7 +165,7 @@ export function Overlay(props: GameStateProps) {
       onKeyUp={handleKeyUp}
       tabIndex={0}
     >
-      <div className="overlay" onClick={handleTogglePlayPause}>
+      <div className="overlay" onClick={props.handleTogglePlayPause}>
         <div
           className="observer-slot"
           style={!alivePlayers[1] ? { display: "none" } : {}}
@@ -209,7 +231,7 @@ export function Overlay(props: GameStateProps) {
         <ControlPanel
           handlePreviousRound={handlePreviousRound}
           handleNextRound={handleNextRound}
-          handlePlayPause={handleTogglePlayPause}
+          handlePlayPause={props.handleTogglePlayPause}
           handleToggleGameControl={handleToggleGameControl}
           handleToggleXray={handleToggleXray}
           handleVolumeChange={handleVolumeChange}
@@ -219,4 +241,24 @@ export function Overlay(props: GameStateProps) {
       </div>
     </div>
   );
+}
+
+type ConnectedGameStateProps = {
+  gameState?: GameState;
+  appState?: AppState;
+};
+export function ConnectedOverlay(props: ConnectedGameStateProps) {
+  const client = useContext(ClientContext);
+  const dispatch = useDispatch();
+
+  const handleTogglePlayPause = async (e: MouseEvent) => {
+    e.preventDefault();
+
+    dispatch(controlPanelSlice.actions.togglePlaying());
+    await client.post("/manual-commands", {
+      command: "demo_togglepause",
+      type: "bind",
+    });
+  };
+  return <Overlay {...props} handleTogglePlayPause={handleTogglePlayPause} />;
 }
