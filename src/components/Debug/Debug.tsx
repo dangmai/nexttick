@@ -130,12 +130,6 @@ export function Debug(props: GameStateProps) {
             Hide X-Ray
           </button>
         </div>
-        <Button color="primary" type="button">
-          Button
-        </Button>
-        <div className="game-state">
-          <GameStateCmp gameState={gameState} />
-        </div>
       </div>
     </div>
   );
