@@ -7,6 +7,12 @@ div.frame {
   width: 100%;
   height: 100%;
 }
+div.frame.debug-img {
+  width: 1280px;
+  height: 720px;
+  background-image: url("https://i.imgur.com/OS0EHHg.jpg");
+  background-size: cover;
+}
 div.overlay {
   position: fixed;
   width: 100%;

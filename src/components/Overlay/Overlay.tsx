@@ -160,7 +160,7 @@ export function Overlay(props: GameStateProps) {
 
   return (
     <div
-      className="frame"
+      className={"frame " + (process.env.REACT_APP_DEBUG ? "debug-img" : "")}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
       tabIndex={0}

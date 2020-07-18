@@ -40,6 +40,7 @@
   },
   "scripts": {
     "dev": "concurrently \"yarn run frontend:dev\" \"yarn run electron:dev\" \"yarn run backend:dev\" \"yarn run ahk:dev\"",
+    "dev:mock": "cross-env REACT_APP_DEBUG=1 concurrently \"yarn run frontend:dev\" \"yarn run backend:mock:dev\"",
     "frontend:dev": "cross-env BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -49,6 +50,7 @@
     "electron:dev": "wait-on http://localhost:3000 && tsc-watch -p electron --onSuccess \"electron .\"",
     "electron:build": "yarn build && tsc -p backend && tsc -p electron && yarn run ahk:build && electron-builder",
     "backend:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/server.js\"",
+    "backend:mock:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/mockServer.js\"",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
     "ahk:dev": "onchange scripts\\activate.ahk --  yarn run ahk:build",
