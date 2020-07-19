@@ -39,7 +39,6 @@ export const appStateSlice = createSlice({
   },
 });
 
-const dispatch = useDispatch();
 const handleKeyDown = async (e: KeyboardEvent) => {
   if (e.keyCode === 9 && !e.repeat) {
     e.preventDefault();
@@ -75,20 +74,9 @@ const handleToggleGameControl = async (e: MouseEvent) => {
     ipcRenderer.send("toggleGameControl");
   }
 };
-const handleSpeedChange = useCallback(async (speed: number) => {
-  console.log(`New speed detected ${speed}`);
-  await api.setSpeed(speed);
-}, []);
 
 const handleToggleXray = async (showXray: boolean) => {
   await api.toggleXray(showXray);
-};
-
-const handleTogglePlayPause = async (e: MouseEvent) => {
-  e.preventDefault();
-
-  dispatch(appStateSlice.actions.togglePlaying());
-  await api.togglePause();
 };
 
 type GameStateProps = {
@@ -100,6 +88,12 @@ export function Overlay(props: GameStateProps) {
   useEffect(() => {
     document.title = "NextTick - Overlay";
   }, []);
+
+  const handleSpeedChange = useCallback(async (speed: number) => {
+    console.log(`New speed detected ${speed}`);
+    await api.setSpeed(speed);
+  }, []);
+
   const handleSpecPlayer = async (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -240,6 +234,14 @@ type ConnectedGameStateProps = {
 };
 export function ConnectedOverlay(props: ConnectedGameStateProps) {
   const appState = useSelector((state: RootState) => state.appState);
+  const dispatch = useDispatch();
+
+  const handleTogglePlayPause = async (e: MouseEvent) => {
+    e.preventDefault();
+
+    dispatch(appStateSlice.actions.togglePlaying());
+    await api.togglePause();
+  };
 
   return (
     <Overlay
