@@ -3,13 +3,12 @@ import React, {
   useEffect,
   useState,
   useRef,
-  RefObject,
   MouseEvent,
 } from "react";
 import { Dropdown, DropdownMenu, DropdownToggle } from "reactstrap";
-import Slider from "nouislider";
 
 import "./ControlPanel.css";
+import { ConnectedVolume } from "../Volume/Volume";
 import { SpeedControl } from "../SpeedControl/SpeedControl";
 import { AppState } from "../../../backend/message";
 
@@ -19,7 +18,6 @@ interface ControlPanelProps {
   handleNextRound?: (e: MouseEvent) => void;
   handleToggleGameControl?: (e: MouseEvent) => void;
   handleToggleXray?: (showXray: boolean) => void;
-  handleVolumeChange?: (volume: number) => void;
   handleSpeedChange?: (speed: number) => void;
   appState?: AppState;
 }
@@ -34,21 +32,15 @@ export const ControlPanel = (props: ControlPanelProps) => {
   const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
   const [speedDropdownOpen, setSpeedDropdownOpen] = useState(false);
   const [showXray, setShowXray] = useState(true);
-  const [muted, setMuted] = useState(false);
-  const [volumeBeforeMute, setVolumeBeforeMute] = useState(0);
   const [speed, setSpeed] = useState(1);
   const toggleSpeedDropdown = () =>
     setSpeedDropdownOpen((prevState) => !prevState);
   const toggleOptionDropdown = () =>
     setOptionDropdownOpen((prevState) => !prevState);
 
-  const { handleVolumeChange, handleSpeedChange, appState } = props;
-  const volumeSliderRef: RefObject<HTMLDivElement> = useRef(null);
-  const volumeSlider = useRef<Slider.noUiSlider | null>(null);
-  const previousGameVolume = usePrevious(appState?.volume);
+  const { handleSpeedChange, appState } = props;
   const previousGameShowXray = usePrevious(appState?.showXray);
 
-  let gameVolume: number | undefined = appState?.volume;
   if (
     props.appState?.showXray !== undefined &&
     props.appState.showXray !== previousGameShowXray &&
@@ -58,58 +50,11 @@ export const ControlPanel = (props: ControlPanelProps) => {
   }
 
   useEffect(() => {
-    if (volumeSliderRef.current && !volumeSlider.current) {
-      volumeSlider.current = Slider.create(volumeSliderRef.current, {
-        start: [0.5],
-        connect: [true, false],
-        step: 0.01,
-        range: { min: 0, max: 1 },
-      });
-      volumeSlider.current.on("set", (e) => {
-        if (parseFloat(e[0]) === 0) {
-          setMuted(true);
-        } else {
-          setMuted(false);
-        }
-        if (handleVolumeChange) {
-          handleVolumeChange(e[0]);
-        }
-      });
-    }
-    const appVolumeStr = volumeSlider.current?.get();
-    let appVolume;
-    if (appVolumeStr && typeof appVolumeStr === "string") {
-      appVolume = parseFloat(appVolumeStr);
-    }
-    if (
-      gameVolume !== undefined &&
-      gameVolume !== appVolume &&
-      gameVolume !== previousGameVolume &&
-      volumeSlider.current
-    ) {
-      volumeSlider.current.set(gameVolume);
-    }
-  }, [handleVolumeChange, gameVolume, previousGameVolume]);
-
-  useEffect(() => {
     if (handleSpeedChange) {
       handleSpeedChange(speed);
     }
   }, [handleSpeedChange, speed]);
 
-  const handleToggleMute = (e: MouseEvent) => {
-    if (muted) {
-      setMuted(false);
-      volumeSlider.current?.set(volumeBeforeMute);
-    } else {
-      setMuted(true);
-      const currentVolume = volumeSlider.current?.get();
-      if (currentVolume && typeof currentVolume === "string") {
-        setVolumeBeforeMute(parseFloat(currentVolume));
-      }
-      volumeSlider.current?.set(0);
-    }
-  };
   const handleChangeXray = (e: ChangeEvent<HTMLInputElement>) => {
     setShowXray(e.currentTarget.checked);
   };
@@ -146,15 +91,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
           title="Next Round"
           onClick={props.handleNextRound}
         ></i>
-        <i
-          className={
-            "fa fa-lg mr-3 " + (muted ? "fa-volume-off" : "fa-volume-up")
-          }
-          style={{ width: "20px" }}
-          title="Volume"
-          onClick={handleToggleMute}
-        ></i>
-        <div className="slider" id="volume-slider" ref={volumeSliderRef} />
+        <ConnectedVolume />
       </div>
       <div>
         <i

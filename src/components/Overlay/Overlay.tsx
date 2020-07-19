@@ -33,6 +33,9 @@ export const appStateSlice = createSlice({
     togglePlaying: (state) => {
       state.demoPlaying = !state.demoPlaying;
     },
+    setVolume: (state, action) => {
+      state.volume = action.payload;
+    },
     setAppState: (state, action) => {
       return Object.assign({}, state, action.payload);
     },
@@ -63,9 +66,6 @@ const handlePreviousRound = async (e: MouseEvent) => {
 const handleNextRound = async (e: MouseEvent) => {
   e.stopPropagation();
   await api.goToNextRound();
-};
-const handleVolumeChange = async (volume: number) => {
-  await api.setVolume(volume);
 };
 const handleToggleGameControl = async (e: MouseEvent) => {
   e.stopPropagation();
@@ -220,7 +220,6 @@ export function Overlay(props: GameStateProps) {
           handlePlayPause={props.handleTogglePlayPause}
           handleToggleGameControl={handleToggleGameControl}
           handleToggleXray={handleToggleXray}
-          handleVolumeChange={handleVolumeChange}
           handleSpeedChange={handleSpeedChange}
           appState={props.appState}
         />

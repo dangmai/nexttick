@@ -37,6 +37,11 @@ app.post("/ws/gamestate", (req, res) => {
 });
 
 app.post("*", (req, res) => {
+  console.log(
+    `Received ${req.method} request at ${
+      req.originalUrl
+    }, body: ${JSON.stringify(req.body)}`
+  );
   res.send("Pong");
 });
 
