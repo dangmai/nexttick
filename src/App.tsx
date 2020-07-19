@@ -1,10 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider as ReduxProvider } from "react-redux";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
 import ReconnectingWebSocket from "reconnecting-websocket";
-import { GameState } from "csgo-gsi-types";
 
 import "fontsource-open-sans";
 
@@ -15,7 +14,7 @@ import "argon-design-system-react/src/assets/vendor/font-awesome/css/font-awesom
 import rootReducer from "./rootReducer";
 import { Debug } from "./components/Debug/Debug";
 import {
-  ConnectedOverlay,
+  Overlay,
   appStateSlice,
   gameStateSlice,
 } from "./components/Overlay/Overlay";
@@ -60,7 +59,7 @@ export function App() {
       <Router>
         <Switch>
           <Route path="/overlay">
-            <ConnectedOverlay />
+            <Overlay />
           </Route>
           <Route path="/preferences">
             <Preferences />

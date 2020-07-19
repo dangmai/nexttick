@@ -1,13 +1,18 @@
 import React, {
-  ChangeEvent,
+  useCallback,
   useEffect,
   useState,
   useRef,
+  ChangeEvent,
   MouseEvent,
 } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Dropdown, DropdownMenu, DropdownToggle } from "reactstrap";
 
 import "./ControlPanel.css";
+import * as api from "../../api";
+import { togglePlaying } from "../Overlay/Overlay";
+import { RootState } from "../../rootReducer";
 import { ConnectedVolume } from "../Volume/Volume";
 import { SpeedControl } from "../SpeedControl/SpeedControl";
 import { AppState } from "../../../backend/message";
@@ -28,6 +33,25 @@ function usePrevious(value: any) {
   }, [value]);
   return ref.current;
 }
+const handlePreviousRound = async (e: MouseEvent) => {
+  e.stopPropagation();
+  await api.goToPreviousRound();
+};
+const handleNextRound = async (e: MouseEvent) => {
+  e.stopPropagation();
+  await api.goToNextRound();
+};
+const handleToggleGameControl = async (e: MouseEvent) => {
+  e.stopPropagation();
+  if (window.require) {
+    const { ipcRenderer } = window.require("electron");
+    ipcRenderer.send("toggleGameControl");
+  }
+};
+const handleToggleXray = async (showXray: boolean) => {
+  await api.toggleXray(showXray);
+};
+
 export const ControlPanel = (props: ControlPanelProps) => {
   const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
   const [speedDropdownOpen, setSpeedDropdownOpen] = useState(false);
@@ -173,5 +197,32 @@ export const ControlPanel = (props: ControlPanelProps) => {
         </Dropdown>
       </div>
     </div>
+  );
+};
+
+export const ConnectedControlPanel = () => {
+  const appState = useSelector((state: RootState) => state.appState);
+  const dispatch = useDispatch();
+
+  const handleTogglePlayPause = async (e: MouseEvent) => {
+    e.preventDefault();
+
+    dispatch(togglePlaying());
+  };
+  const handleSpeedChange = useCallback(async (speed: number) => {
+    console.log(`New speed detected ${speed}`);
+    await api.setSpeed(speed);
+  }, []);
+
+  return (
+    <ControlPanel
+      appState={appState}
+      handlePreviousRound={handlePreviousRound}
+      handleNextRound={handleNextRound}
+      handleToggleGameControl={handleToggleGameControl}
+      handleToggleXray={handleToggleXray}
+      handlePlayPause={handleTogglePlayPause}
+      handleSpeedChange={handleSpeedChange}
+    />
   );
 };

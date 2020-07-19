@@ -1,11 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  MouseEvent,
-  KeyboardEvent,
-} from "react";
+import React, { useEffect, MouseEvent, KeyboardEvent } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { useDispatch, useSelector } from "react-redux";
 import { GameState } from "csgo-gsi-types";
 
 import "bootstrap/dist/css/bootstrap.css";
@@ -13,9 +7,8 @@ import "./Overlay.css";
 
 import * as api from "../../api";
 import { ConnectedPlayerControl } from "../PlayerControl/PlayerControl";
-import { ControlPanel } from "../ControlPanel/ControlPanel";
+import { ConnectedControlPanel } from "../ControlPanel/ControlPanel";
 import { AppState } from "../../../backend/message";
-import { RootState } from "../../rootReducer";
 import { AppThunk } from "../../store";
 
 export const appStateSlice = createSlice({
@@ -95,25 +88,6 @@ const handleKeyUp = async (e: KeyboardEvent) => {
     await api.openConsole();
   }
 };
-const handlePreviousRound = async (e: MouseEvent) => {
-  e.stopPropagation();
-  await api.goToPreviousRound();
-};
-const handleNextRound = async (e: MouseEvent) => {
-  e.stopPropagation();
-  await api.goToNextRound();
-};
-const handleToggleGameControl = async (e: MouseEvent) => {
-  e.stopPropagation();
-  if (window.require) {
-    const { ipcRenderer } = window.require("electron");
-    ipcRenderer.send("toggleGameControl");
-  }
-};
-
-const handleToggleXray = async (showXray: boolean) => {
-  await api.toggleXray(showXray);
-};
 
 interface OverlayProps {
   appState?: AppState;
@@ -122,11 +96,6 @@ interface OverlayProps {
 export function Overlay(props: OverlayProps) {
   useEffect(() => {
     document.title = "NextTick - Overlay";
-  }, []);
-
-  const handleSpeedChange = useCallback(async (speed: number) => {
-    console.log(`New speed detected ${speed}`);
-    await api.setSpeed(speed);
   }, []);
 
   return (
@@ -138,34 +107,8 @@ export function Overlay(props: OverlayProps) {
     >
       <ConnectedPlayerControl />
       <div style={{ position: "absolute", bottom: 0, width: "inherit" }}>
-        <ControlPanel
-          handlePreviousRound={handlePreviousRound}
-          handleNextRound={handleNextRound}
-          handlePlayPause={props.handleTogglePlayPause}
-          handleToggleGameControl={handleToggleGameControl}
-          handleToggleXray={handleToggleXray}
-          handleSpeedChange={handleSpeedChange}
-          appState={props.appState}
-        />
+        <ConnectedControlPanel />
       </div>
     </div>
-  );
-}
-
-export function ConnectedOverlay() {
-  const appState = useSelector((state: RootState) => state.appState);
-  const dispatch = useDispatch();
-
-  const handleTogglePlayPause = async (e: MouseEvent) => {
-    e.preventDefault();
-
-    dispatch(togglePlaying());
-  };
-
-  return (
-    <Overlay
-      appState={appState}
-      handleTogglePlayPause={handleTogglePlayPause}
-    />
   );
 }
