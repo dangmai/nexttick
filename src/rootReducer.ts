@@ -1,9 +1,9 @@
 import { combineReducers } from "@reduxjs/toolkit";
 
-import { controlPanelSlice } from "./components/Overlay/Overlay";
+import { appStateSlice } from "./components/Overlay/Overlay";
 
 const rootReducer = combineReducers({
-  controlPanel: controlPanelSlice.reducer,
+  appState: appStateSlice.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

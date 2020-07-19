@@ -7,7 +7,7 @@ import React, {
   KeyboardEvent,
 } from "react";
 import { createSlice } from "@reduxjs/toolkit";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { GameState } from "csgo-gsi-types";
 
 import "bootstrap/dist/css/bootstrap.css";
@@ -16,30 +16,26 @@ import "./Overlay.css";
 import { ClientContext } from "../../App";
 import { ControlPanel } from "../ControlPanel/ControlPanel";
 import { AppState } from "../../../backend/message";
+import { RootState } from "../../rootReducer";
 
-export const controlPanelSlice = createSlice({
+export const appStateSlice = createSlice({
   name: "controlPanel",
   initialState: {
     demoPath: "",
-    playing: true,
+    demoPlaying: true,
+    gameInDemoMode: true,
     speed: 1,
     volume: 0.5,
+    safezoneX: 0,
+    safezoneY: 0,
+    showXray: true,
   },
   reducers: {
-    setDemoPath: (state, action) => {
-      state.demoPath = action.payload;
-    },
     togglePlaying: (state) => {
-      state.playing = !state.playing;
+      state.demoPlaying = !state.demoPlaying;
     },
-    setPlaying: (state, action) => {
-      state.playing = action.payload;
-    },
-    setSpeed: (state, action) => {
-      state.speed = action.payload;
-    },
-    setVolume: (state, action) => {
-      state.volume = action.payload;
+    setAppState: (state, action) => {
+      return Object.assign({}, state, action.payload);
     },
   },
 });
@@ -245,20 +241,26 @@ export function Overlay(props: GameStateProps) {
 
 type ConnectedGameStateProps = {
   gameState?: GameState;
-  appState?: AppState;
 };
 export function ConnectedOverlay(props: ConnectedGameStateProps) {
   const client = useContext(ClientContext);
   const dispatch = useDispatch();
+  const appState = useSelector((state: RootState) => state.appState);
 
   const handleTogglePlayPause = async (e: MouseEvent) => {
     e.preventDefault();
 
-    dispatch(controlPanelSlice.actions.togglePlaying());
+    dispatch(appStateSlice.actions.togglePlaying());
     await client.post("/manual-commands", {
       command: "demo_togglepause",
       type: "bind",
     });
   };
-  return <Overlay {...props} handleTogglePlayPause={handleTogglePlayPause} />;
+  return (
+    <Overlay
+      {...props}
+      appState={appState}
+      handleTogglePlayPause={handleTogglePlayPause}
+    />
+  );
 }

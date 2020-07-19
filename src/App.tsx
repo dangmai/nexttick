@@ -15,11 +15,11 @@ import "argon-design-system-react/src/assets/vendor/font-awesome/css/font-awesom
 
 import rootReducer from "./rootReducer";
 import { Debug } from "./components/Debug/Debug";
-import { ConnectedOverlay } from "./components/Overlay/Overlay";
+import { ConnectedOverlay, appStateSlice } from "./components/Overlay/Overlay";
 import { Preferences } from "./components/Preferences/Preferences";
 import { MainWindow } from "./components/MainWindow/MainWindow";
 
-import { AppState, Message } from "../backend/message";
+import { Message } from "../backend/message";
 
 const clientInstance = axios.create({
   baseURL: "http://localhost:5001",
@@ -33,7 +33,6 @@ const store = configureStore({
 
 export function App() {
   const [gameState, setGameState] = useState<GameState>();
-  const [appState, setAppState] = useState<AppState>();
   const ws = useRef<ReconnectingWebSocket | null>(null);
 
   useEffect(() => {
@@ -48,7 +47,8 @@ export function App() {
         setGameState(message.gameState);
       } else {
         console.log("App received state change message");
-        setAppState(message);
+        const { type, ...newAppState } = message;
+        store.dispatch(appStateSlice.actions.setAppState(newAppState));
         if (window.require) {
           const { ipcRenderer } = window.require("electron");
           ipcRenderer.send("stateChanged", message);
@@ -65,7 +65,7 @@ export function App() {
         <Router>
           <Switch>
             <Route path="/overlay">
-              <ConnectedOverlay gameState={gameState} appState={appState} />
+              <ConnectedOverlay gameState={gameState} />
             </Route>
             <Route path="/preferences">
               <Preferences />
