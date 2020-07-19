@@ -39,6 +39,58 @@ export const appStateSlice = createSlice({
   },
 });
 
+const dispatch = useDispatch();
+const handleKeyDown = async (e: KeyboardEvent) => {
+  if (e.keyCode === 9 && !e.repeat) {
+    e.preventDefault();
+    console.log("Tab held");
+    await api.showScoreboard();
+  }
+};
+const handleKeyUp = async (e: KeyboardEvent) => {
+  if (e.keyCode === 9) {
+    console.log("Tab unheld");
+    await api.hideScoreboard();
+  }
+  if (e.keyCode === 192) {
+    console.log("Backtick pressed");
+    await api.openConsole();
+  }
+};
+const handlePreviousRound = async (e: MouseEvent) => {
+  e.stopPropagation();
+  await api.goToPreviousRound();
+};
+const handleNextRound = async (e: MouseEvent) => {
+  e.stopPropagation();
+  await api.goToNextRound();
+};
+const handleVolumeChange = async (volume: number) => {
+  await api.setVolume(volume);
+};
+const handleToggleGameControl = async (e: MouseEvent) => {
+  e.stopPropagation();
+  if (window.require) {
+    const { ipcRenderer } = window.require("electron");
+    ipcRenderer.send("toggleGameControl");
+  }
+};
+const handleSpeedChange = useCallback(async (speed: number) => {
+  console.log(`New speed detected ${speed}`);
+  await api.setSpeed(speed);
+}, []);
+
+const handleToggleXray = async (showXray: boolean) => {
+  await api.toggleXray(showXray);
+};
+
+const handleTogglePlayPause = async (e: MouseEvent) => {
+  e.preventDefault();
+
+  dispatch(appStateSlice.actions.togglePlaying());
+  await api.togglePause();
+};
+
 type GameStateProps = {
   gameState?: GameState;
   appState?: AppState;
@@ -48,6 +100,27 @@ export function Overlay(props: GameStateProps) {
   useEffect(() => {
     document.title = "NextTick - Overlay";
   }, []);
+  const handleSpecPlayer = async (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const { gameState } = props;
+    const observerSlot = e.currentTarget.getAttribute("id")?.split("-")[1];
+
+    if (!gameState || !gameState.allplayers) {
+      return;
+    }
+    const allPlayers = gameState.allplayers;
+    const players = Object.keys(allPlayers).map((steamId) => {
+      return Object.assign({}, allPlayers[steamId], { steamId: steamId });
+    });
+    const chosenPlayer = players.filter(
+      (player) => player.observer_slot?.toString() === observerSlot
+    );
+    if (chosenPlayer.length > 0) {
+      const steamId = chosenPlayer[0].steamId;
+      await api.specPlayer(steamId);
+    }
+  };
   const [alivePlayers, setAlivePlayers] = useState([
     false,
     false,
@@ -76,69 +149,6 @@ export function Overlay(props: GameStateProps) {
       setAlivePlayers(alivePlayers);
     }
   }, [allPlayersJson]);
-  const handleSpecPlayer = async (e: MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const { gameState } = props;
-    const observerSlot = e.currentTarget.getAttribute("id")?.split("-")[1];
-
-    if (!gameState || !gameState.allplayers) {
-      return <div></div>;
-    }
-    const allPlayers = gameState.allplayers;
-    const players = Object.keys(allPlayers).map((steamId) => {
-      return Object.assign({}, allPlayers[steamId], { steamId: steamId });
-    });
-    const chosenPlayer = players.filter(
-      (player) => player.observer_slot?.toString() === observerSlot
-    );
-    if (chosenPlayer.length > 0) {
-      const steamId = chosenPlayer[0].steamId;
-      await api.specPlayer(steamId);
-    }
-  };
-  const handleKeyDown = async (e: KeyboardEvent) => {
-    if (e.keyCode === 9 && !e.repeat) {
-      e.preventDefault();
-      console.log("Tab held");
-      await api.showScoreboard();
-    }
-  };
-  const handleKeyUp = async (e: KeyboardEvent) => {
-    if (e.keyCode === 9) {
-      console.log("Tab unheld");
-      await api.hideScoreboard();
-    }
-    if (e.keyCode === 192) {
-      console.log("Backtick pressed");
-      await api.openConsole();
-    }
-  };
-  const handlePreviousRound = async (e: MouseEvent) => {
-    e.stopPropagation();
-    await api.goToPreviousRound();
-  };
-  const handleNextRound = async (e: MouseEvent) => {
-    e.stopPropagation();
-    await api.goToNextRound();
-  };
-  const handleVolumeChange = async (volume: number) => {
-    await api.setVolume(volume);
-  };
-  const handleToggleGameControl = async (e: MouseEvent) => {
-    e.stopPropagation();
-    if (window.require) {
-      const { ipcRenderer } = window.require("electron");
-      ipcRenderer.send("toggleGameControl");
-    }
-  };
-  const handleSpeedChange = useCallback(async (speed: number) => {
-    console.log(`New speed detected ${speed}`);
-    await api.setSpeed(speed);
-  }, []);
-  const handleToggleXray = async (showXray: boolean) => {
-    await api.toggleXray(showXray);
-  };
 
   return (
     <div
@@ -229,15 +239,8 @@ type ConnectedGameStateProps = {
   gameState?: GameState;
 };
 export function ConnectedOverlay(props: ConnectedGameStateProps) {
-  const dispatch = useDispatch();
   const appState = useSelector((state: RootState) => state.appState);
 
-  const handleTogglePlayPause = async (e: MouseEvent) => {
-    e.preventDefault();
-
-    dispatch(appStateSlice.actions.togglePlaying());
-    await api.togglePause();
-  };
   return (
     <Overlay
       {...props}
