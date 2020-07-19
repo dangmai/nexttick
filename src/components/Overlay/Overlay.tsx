@@ -115,11 +115,11 @@ const handleToggleXray = async (showXray: boolean) => {
   await api.toggleXray(showXray);
 };
 
-type GameStateProps = {
+interface OverlayProps {
   appState?: AppState;
   handleTogglePlayPause?: (e: MouseEvent) => void;
-};
-export function Overlay(props: GameStateProps) {
+}
+export function Overlay(props: OverlayProps) {
   useEffect(() => {
     document.title = "NextTick - Overlay";
   }, []);
