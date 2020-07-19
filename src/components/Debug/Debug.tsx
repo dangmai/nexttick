@@ -1,5 +1,4 @@
-import React, { MouseEvent, useContext, useEffect, useState } from "react";
-import { GameState } from "csgo-gsi-types";
+import React, { MouseEvent, useEffect, useState } from "react";
 import {
   Button,
   Form,
@@ -11,10 +10,7 @@ import {
 
 import * as api from "../../api";
 
-type GameStateProps = {
-  gameState?: GameState;
-};
-export function Debug(props: GameStateProps) {
+export function Debug() {
   const [command, setCommand] = useState("");
 
   useEffect(() => {

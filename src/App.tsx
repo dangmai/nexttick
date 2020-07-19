@@ -14,7 +14,11 @@ import "argon-design-system-react/src/assets/vendor/font-awesome/css/font-awesom
 
 import rootReducer from "./rootReducer";
 import { Debug } from "./components/Debug/Debug";
-import { ConnectedOverlay, appStateSlice } from "./components/Overlay/Overlay";
+import {
+  ConnectedOverlay,
+  appStateSlice,
+  gameStateSlice,
+} from "./components/Overlay/Overlay";
 import { Preferences } from "./components/Preferences/Preferences";
 import { MainWindow } from "./components/MainWindow/MainWindow";
 
@@ -25,7 +29,6 @@ const store = configureStore({
 });
 
 export function App() {
-  const [gameState, setGameState] = useState<GameState>();
   const ws = useRef<ReconnectingWebSocket | null>(null);
 
   useEffect(() => {
@@ -37,7 +40,7 @@ export function App() {
     ws.current.onmessage = (e) => {
       const message: Message = JSON.parse(e.data);
       if (message.type === "gsi") {
-        setGameState(message.gameState);
+        store.dispatch(gameStateSlice.actions.setGameState(message.gameState));
       } else {
         console.log("App received state change message");
         const { type, ...newAppState } = message;
@@ -57,13 +60,13 @@ export function App() {
       <Router>
         <Switch>
           <Route path="/overlay">
-            <ConnectedOverlay gameState={gameState} />
+            <ConnectedOverlay />
           </Route>
           <Route path="/preferences">
             <Preferences />
           </Route>
           <Route path="/debug">
-            <Debug gameState={gameState} />
+            <Debug />
           </Route>
           <Route path="/">{<MainWindow />}</Route>
         </Switch>

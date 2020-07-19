@@ -1,9 +1,10 @@
 import { combineReducers } from "@reduxjs/toolkit";
 
-import { appStateSlice } from "./components/Overlay/Overlay";
+import { appStateSlice, gameStateSlice } from "./components/Overlay/Overlay";
 
 const rootReducer = combineReducers({
   appState: appStateSlice.reducer,
+  gameState: gameStateSlice.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

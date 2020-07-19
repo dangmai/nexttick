@@ -29,7 +29,7 @@ app.post("/ws/gamestate", (req, res) => {
   if (ws) {
     const message = {
       type: "gsi",
-      ...req.body,
+      gameState: req.body,
     };
     ws.send(JSON.stringify(message));
   }

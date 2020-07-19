@@ -1,11 +1,10 @@
 import React, {
   useCallback,
   useEffect,
-  useState,
   MouseEvent,
   KeyboardEvent,
 } from "react";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { GameState } from "csgo-gsi-types";
 
@@ -13,12 +12,14 @@ import "bootstrap/dist/css/bootstrap.css";
 import "./Overlay.css";
 
 import * as api from "../../api";
+import { ConnectedPlayerControl } from "../PlayerControl/PlayerControl";
 import { ControlPanel } from "../ControlPanel/ControlPanel";
 import { AppState } from "../../../backend/message";
 import { RootState } from "../../rootReducer";
+import { AppThunk } from "../../store";
 
 export const appStateSlice = createSlice({
-  name: "controlPanel",
+  name: "appState",
   initialState: {
     demoPath: "",
     demoPlaying: true,
@@ -30,7 +31,7 @@ export const appStateSlice = createSlice({
     showXray: true,
   },
   reducers: {
-    togglePlaying: (state) => {
+    togglePlayingState: (state) => {
       state.demoPlaying = !state.demoPlaying;
     },
     setVolume: (state, action) => {
@@ -41,6 +42,41 @@ export const appStateSlice = createSlice({
     },
   },
 });
+
+export interface PlayerState {
+  steamId: string;
+  health: number;
+}
+const initialGameState: PlayerState[] = [];
+export const gameStateSlice = createSlice({
+  name: "gameState",
+  initialState: initialGameState,
+  reducers: {
+    setGameState: (state, action: PayloadAction<GameState>) => {
+      const allPlayers = action.payload.allplayers;
+      if (!allPlayers) {
+        return [];
+      }
+
+      const playerList = Object.keys(allPlayers).map((steamId) => {
+        return Object.assign({}, allPlayers[steamId], { steamId: steamId });
+      });
+
+      return playerList.reduce((players, player) => {
+        players[player.observer_slot] = {
+          steamId: player.steamId,
+          health: player.state.health,
+        };
+        return players;
+      }, new Array<PlayerState>(10));
+    },
+  },
+});
+
+export const togglePlaying = (): AppThunk => async (dispatch) => {
+  dispatch(appStateSlice.actions.togglePlayingState());
+  await api.togglePause();
+};
 
 const handleKeyDown = async (e: KeyboardEvent) => {
   if (e.keyCode === 9 && !e.repeat) {
@@ -80,7 +116,6 @@ const handleToggleXray = async (showXray: boolean) => {
 };
 
 type GameStateProps = {
-  gameState?: GameState;
   appState?: AppState;
   handleTogglePlayPause?: (e: MouseEvent) => void;
 };
@@ -94,56 +129,6 @@ export function Overlay(props: GameStateProps) {
     await api.setSpeed(speed);
   }, []);
 
-  const handleSpecPlayer = async (e: MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const { gameState } = props;
-    const observerSlot = e.currentTarget.getAttribute("id")?.split("-")[1];
-
-    if (!gameState || !gameState.allplayers) {
-      return;
-    }
-    const allPlayers = gameState.allplayers;
-    const players = Object.keys(allPlayers).map((steamId) => {
-      return Object.assign({}, allPlayers[steamId], { steamId: steamId });
-    });
-    const chosenPlayer = players.filter(
-      (player) => player.observer_slot?.toString() === observerSlot
-    );
-    if (chosenPlayer.length > 0) {
-      const steamId = chosenPlayer[0].steamId;
-      await api.specPlayer(steamId);
-    }
-  };
-  const [alivePlayers, setAlivePlayers] = useState([
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
-  const { gameState } = props;
-  let allPlayersJson = "{}";
-  if (gameState && gameState.allplayers) {
-    allPlayersJson = JSON.stringify(gameState?.allplayers);
-  }
-  useEffect(() => {
-    const allPlayers = JSON.parse(allPlayersJson);
-    if (allPlayers) {
-      const alivePlayers = new Array<boolean>(10);
-      Object.keys(allPlayers).forEach((steamId) => {
-        alivePlayers[allPlayers[steamId].observer_slot] =
-          allPlayers[steamId].state.health > 0;
-      });
-      setAlivePlayers(alivePlayers);
-    }
-  }, [allPlayersJson]);
-
   return (
     <div
       className={"frame " + (process.env.REACT_APP_DEBUG ? "debug-img" : "")}
@@ -151,68 +136,7 @@ export function Overlay(props: GameStateProps) {
       onKeyUp={handleKeyUp}
       tabIndex={0}
     >
-      <div className="overlay" onClick={props.handleTogglePlayPause}>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[1] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-1"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[2] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-2"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[3] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-3"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[4] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-4"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[5] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-5"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[6] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-6"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[7] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-7"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[8] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-8"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[9] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-9"
-        ></div>
-        <div
-          className="observer-slot"
-          style={!alivePlayers[0] ? { display: "none" } : {}}
-          onClick={handleSpecPlayer}
-          id="observer-0"
-        ></div>
-      </div>
+      <ConnectedPlayerControl />
       <div style={{ position: "absolute", bottom: 0, width: "inherit" }}>
         <ControlPanel
           handlePreviousRound={handlePreviousRound}
@@ -228,23 +152,18 @@ export function Overlay(props: GameStateProps) {
   );
 }
 
-type ConnectedGameStateProps = {
-  gameState?: GameState;
-};
-export function ConnectedOverlay(props: ConnectedGameStateProps) {
+export function ConnectedOverlay() {
   const appState = useSelector((state: RootState) => state.appState);
   const dispatch = useDispatch();
 
   const handleTogglePlayPause = async (e: MouseEvent) => {
     e.preventDefault();
 
-    dispatch(appStateSlice.actions.togglePlaying());
-    await api.togglePause();
+    dispatch(togglePlaying());
   };
 
   return (
     <Overlay
-      {...props}
       appState={appState}
       handleTogglePlayPause={handleTogglePlayPause}
     />
