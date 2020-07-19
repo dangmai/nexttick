@@ -17,7 +17,7 @@ export const SpeedControl = (props: SpeedControlProps) => {
   useEffect(() => {
     if (speedSliderRef.current && !speedSlider.current) {
       speedSlider.current = Slider.create(speedSliderRef.current, {
-        start: [speed],
+        start: [1],
         connect: [true, false],
         range: {
           min: [0.25],
@@ -29,7 +29,7 @@ export const SpeedControl = (props: SpeedControlProps) => {
           density: 10,
         },
       });
-      speedSlider.current.on("set", (e) => {
+      speedSlider.current.on("change", (e) => {
         if (handleSpeedChange) {
           handleSpeedChange(parseFloat(e[0]));
         }
@@ -41,6 +41,9 @@ export const SpeedControl = (props: SpeedControlProps) => {
   const handleManualSpeed = (newSpeed: number) => (e: MouseEvent) => {
     e.preventDefault();
     speedSlider.current?.set(newSpeed);
+    if (handleSpeedChange) {
+      handleSpeedChange(newSpeed);
+    }
   };
 
   return (

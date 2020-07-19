@@ -33,6 +33,9 @@ export const appStateSlice = createSlice({
     setShowXrayState: (state, action) => {
       state.showXray = action.payload;
     },
+    setSpeedState: (state, action) => {
+      state.speed = action.payload;
+    },
     setAppState: (state, action) => {
       return Object.assign({}, state, action.payload);
     },
@@ -79,6 +82,11 @@ export const setShowXray = (showXray: boolean): AppThunk => async (
 ) => {
   dispatch(appStateSlice.actions.setShowXrayState(showXray));
   await api.toggleXray(showXray);
+};
+
+export const setSpeed = (speed: number): AppThunk => async (dispatch) => {
+  dispatch(appStateSlice.actions.setSpeedState(speed));
+  await api.setSpeed(speed);
 };
 
 const handleKeyDown = async (e: KeyboardEvent) => {

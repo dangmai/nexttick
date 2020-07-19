@@ -1,16 +1,10 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-  ChangeEvent,
-  MouseEvent,
-} from "react";
+import React, { useState, ChangeEvent, MouseEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Dropdown, DropdownMenu, DropdownToggle } from "reactstrap";
 
 import "./ControlPanel.css";
 import * as api from "../../api";
-import { setShowXray, togglePlaying } from "../Overlay/Overlay";
+import { setShowXray, setSpeed, togglePlaying } from "../Overlay/Overlay";
 import { RootState } from "../../rootReducer";
 import { ConnectedVolume } from "../Volume/Volume";
 import { SpeedControl } from "../SpeedControl/SpeedControl";
@@ -23,7 +17,7 @@ interface ControlPanelProps {
   handleToggleGameControl?: (e: MouseEvent) => void;
   handleToggleXray?: (showXray: boolean) => void;
   handleSpeedChange?: (speed: number) => void;
-  appState: AppState;
+  appState: AppState & { speed: number };
 }
 const handlePreviousRound = async (e: MouseEvent) => {
   e.stopPropagation();
@@ -44,19 +38,12 @@ const handleToggleGameControl = async (e: MouseEvent) => {
 export const ControlPanel = (props: ControlPanelProps) => {
   const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
   const [speedDropdownOpen, setSpeedDropdownOpen] = useState(false);
-  const [speed, setSpeed] = useState(1);
   const toggleSpeedDropdown = () =>
     setSpeedDropdownOpen((prevState) => !prevState);
   const toggleOptionDropdown = () =>
     setOptionDropdownOpen((prevState) => !prevState);
 
   const { handleSpeedChange, handleToggleXray, appState } = props;
-
-  useEffect(() => {
-    if (handleSpeedChange) {
-      handleSpeedChange(speed);
-    }
-  }, [handleSpeedChange, speed]);
 
   const handleChangeXray = (e: ChangeEvent<HTMLInputElement>) => {
     if (handleToggleXray) {
@@ -130,10 +117,8 @@ export const ControlPanel = (props: ControlPanelProps) => {
             }}
           >
             <SpeedControl
-              speed={speed}
-              handleSpeedChange={(newSpeed) => {
-                setSpeed(newSpeed);
-              }}
+              speed={appState.speed}
+              handleSpeedChange={handleSpeedChange}
             />
           </DropdownMenu>
         </Dropdown>
@@ -194,10 +179,9 @@ export const ConnectedControlPanel = () => {
     dispatch(setShowXray(showXray));
   };
 
-  const handleSpeedChange = useCallback(async (speed: number) => {
-    console.log(`New speed detected ${speed}`);
-    await api.setSpeed(speed);
-  }, []);
+  const handleSpeedChange = async (speed: number) => {
+    dispatch(setSpeed(speed));
+  };
 
   return (
     <ControlPanel
