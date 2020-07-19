@@ -25,61 +25,81 @@ export const PlayerControl = (props: PlayerControlProps) => {
     <div className="player-control" onClick={props.handleTogglePlayPause}>
       <div
         className="observer-slot"
-        style={players[1].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[1] || players[1].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-1"
       ></div>
       <div
         className="observer-slot"
-        style={players[2].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[2] || players[2].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-2"
       ></div>
       <div
         className="observer-slot"
-        style={players[3].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[3] || players[3].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-3"
       ></div>
       <div
         className="observer-slot"
-        style={players[4].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[4] || players[4].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-4"
       ></div>
       <div
         className="observer-slot"
-        style={players[5].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[5] || players[5].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-5"
       ></div>
       <div
         className="observer-slot"
-        style={players[6].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[6] || players[6].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-6"
       ></div>
       <div
         className="observer-slot"
-        style={players[7].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[7] || players[7].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-7"
       ></div>
       <div
         className="observer-slot"
-        style={players[8].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[8] || players[8].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-8"
       ></div>
       <div
         className="observer-slot"
-        style={players[9].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[9] || players[9].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-9"
       ></div>
       <div
         className="observer-slot"
-        style={players[0].health === 0 ? { display: "none" } : {}}
+        style={
+          !players[0] || players[0].health === 0 ? { display: "none" } : {}
+        }
         onClick={props.handleSpecPlayer}
         id="observer-0"
       ></div>
