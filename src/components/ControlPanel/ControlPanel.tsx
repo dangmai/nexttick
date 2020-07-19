@@ -2,7 +2,6 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useRef,
   ChangeEvent,
   MouseEvent,
 } from "react";
@@ -11,7 +10,7 @@ import { Dropdown, DropdownMenu, DropdownToggle } from "reactstrap";
 
 import "./ControlPanel.css";
 import * as api from "../../api";
-import { togglePlaying } from "../Overlay/Overlay";
+import { setShowXray, togglePlaying } from "../Overlay/Overlay";
 import { RootState } from "../../rootReducer";
 import { ConnectedVolume } from "../Volume/Volume";
 import { SpeedControl } from "../SpeedControl/SpeedControl";
@@ -24,14 +23,7 @@ interface ControlPanelProps {
   handleToggleGameControl?: (e: MouseEvent) => void;
   handleToggleXray?: (showXray: boolean) => void;
   handleSpeedChange?: (speed: number) => void;
-  appState?: AppState;
-}
-function usePrevious(value: any) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
+  appState: AppState;
 }
 const handlePreviousRound = async (e: MouseEvent) => {
   e.stopPropagation();
@@ -48,30 +40,17 @@ const handleToggleGameControl = async (e: MouseEvent) => {
     ipcRenderer.send("toggleGameControl");
   }
 };
-const handleToggleXray = async (showXray: boolean) => {
-  await api.toggleXray(showXray);
-};
 
 export const ControlPanel = (props: ControlPanelProps) => {
   const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
   const [speedDropdownOpen, setSpeedDropdownOpen] = useState(false);
-  const [showXray, setShowXray] = useState(true);
   const [speed, setSpeed] = useState(1);
   const toggleSpeedDropdown = () =>
     setSpeedDropdownOpen((prevState) => !prevState);
   const toggleOptionDropdown = () =>
     setOptionDropdownOpen((prevState) => !prevState);
 
-  const { handleSpeedChange, appState } = props;
-  const previousGameShowXray = usePrevious(appState?.showXray);
-
-  if (
-    props.appState?.showXray !== undefined &&
-    props.appState.showXray !== previousGameShowXray &&
-    props.appState.showXray !== showXray
-  ) {
-    setShowXray(props.appState?.showXray);
-  }
+  const { handleSpeedChange, handleToggleXray, appState } = props;
 
   useEffect(() => {
     if (handleSpeedChange) {
@@ -80,14 +59,15 @@ export const ControlPanel = (props: ControlPanelProps) => {
   }, [handleSpeedChange, speed]);
 
   const handleChangeXray = (e: ChangeEvent<HTMLInputElement>) => {
-    setShowXray(e.currentTarget.checked);
+    if (handleToggleXray) {
+      handleToggleXray(e.currentTarget.checked);
+    }
   };
   const handleXrayContainerClick = (e: MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    setShowXray(!showXray);
-    if (props.handleToggleXray) {
-      props.handleToggleXray(!showXray);
+    if (handleToggleXray) {
+      handleToggleXray(!appState.showXray);
     }
   };
   return (
@@ -187,7 +167,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
               <label className="custom-toggle">
                 <input
                   type="checkbox"
-                  checked={showXray}
+                  checked={appState.showXray}
                   onChange={handleChangeXray}
                 />
                 <span className="custom-toggle-slider rounded-circle" />
@@ -209,6 +189,11 @@ export const ConnectedControlPanel = () => {
 
     dispatch(togglePlaying());
   };
+
+  const handleToggleXray = async (showXray: boolean) => {
+    dispatch(setShowXray(showXray));
+  };
+
   const handleSpeedChange = useCallback(async (speed: number) => {
     console.log(`New speed detected ${speed}`);
     await api.setSpeed(speed);

@@ -30,6 +30,9 @@ export const appStateSlice = createSlice({
     setVolume: (state, action) => {
       state.volume = action.payload;
     },
+    setShowXrayState: (state, action) => {
+      state.showXray = action.payload;
+    },
     setAppState: (state, action) => {
       return Object.assign({}, state, action.payload);
     },
@@ -69,6 +72,13 @@ export const gameStateSlice = createSlice({
 export const togglePlaying = (): AppThunk => async (dispatch) => {
   dispatch(appStateSlice.actions.togglePlayingState());
   await api.togglePause();
+};
+
+export const setShowXray = (showXray: boolean): AppThunk => async (
+  dispatch
+) => {
+  dispatch(appStateSlice.actions.setShowXrayState(showXray));
+  await api.toggleXray(showXray);
 };
 
 const handleKeyDown = async (e: KeyboardEvent) => {
