@@ -9,47 +9,47 @@ import {
   InputGroupAddon,
 } from "reactstrap";
 
-import { ClientContext } from "../../App";
-import { GameStateCmp } from "../GameState/GameState";
+import * as api from "../../api";
 
 type GameStateProps = {
   gameState?: GameState;
 };
 export function Debug(props: GameStateProps) {
-  const { gameState } = props;
   const [command, setCommand] = useState("");
 
-  const client = useContext(ClientContext);
   useEffect(() => {
     document.title = "NextTick - Debug";
   }, []);
   const handleCommand = async (e: MouseEvent) => {
     e.preventDefault();
     const commandName = e.currentTarget.getAttribute("name");
-    const result = await client.post("/telnet-commands/", {
-      command: commandName,
-    });
-    console.log(result);
+    if (commandName) {
+      const result = await api.sendManualCommand({
+        type: "telnet",
+        command: commandName,
+      });
+      console.log(result);
+    }
   };
   const launchCsgo = async (e: MouseEvent) => {
     e.preventDefault();
-    const result = await client.post("/launch/");
+    const result = await api.launchCsgo();
     console.log(result);
   };
 
   const sendTelnetCommand = async (e: MouseEvent) => {
     e.preventDefault();
-    const result = await client.post("/manual-commands/", {
-      command,
+    const result = await api.sendManualCommand({
       type: "telnet",
+      command,
     });
     console.log(result);
   };
-  const sendManualCommand = async (e: MouseEvent) => {
+  const sendBindCommand = async (e: MouseEvent) => {
     e.preventDefault();
-    const result = await client.post("/manual-commands/", {
-      command,
+    const result = await api.sendManualCommand({
       type: "bind",
+      command,
     });
     console.log(result);
   };
@@ -85,7 +85,7 @@ export function Debug(props: GameStateProps) {
                   <Button color="secondary" onClick={sendTelnetCommand}>
                     Send via Telnet
                   </Button>
-                  <Button color="secondary" onClick={sendManualCommand}>
+                  <Button color="secondary" onClick={sendBindCommand}>
                     Send via Bind
                   </Button>
                 </InputGroupAddon>

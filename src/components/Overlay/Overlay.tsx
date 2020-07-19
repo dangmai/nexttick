@@ -1,6 +1,5 @@
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useState,
   MouseEvent,
@@ -13,7 +12,7 @@ import { GameState } from "csgo-gsi-types";
 import "bootstrap/dist/css/bootstrap.css";
 import "./Overlay.css";
 
-import { ClientContext } from "../../App";
+import * as api from "../../api";
 import { ControlPanel } from "../ControlPanel/ControlPanel";
 import { AppState } from "../../../backend/message";
 import { RootState } from "../../rootReducer";
@@ -49,7 +48,6 @@ export function Overlay(props: GameStateProps) {
   useEffect(() => {
     document.title = "NextTick - Overlay";
   }, []);
-  const client = useContext(ClientContext);
   const [alivePlayers, setAlivePlayers] = useState([
     false,
     false,
@@ -96,42 +94,36 @@ export function Overlay(props: GameStateProps) {
     );
     if (chosenPlayer.length > 0) {
       const steamId = chosenPlayer[0].steamId;
-      await client.post("/spec-player/", {
-        steamId,
-      });
+      await api.specPlayer(steamId);
     }
   };
   const handleKeyDown = async (e: KeyboardEvent) => {
     if (e.keyCode === 9 && !e.repeat) {
       e.preventDefault();
       console.log("Tab held");
-      await client.post("/telnet-commands/", {
-        command: "showScoreboard",
-      });
+      await api.showScoreboard();
     }
   };
   const handleKeyUp = async (e: KeyboardEvent) => {
     if (e.keyCode === 9) {
       console.log("Tab unheld");
-      await client.post("/telnet-commands/", {
-        command: "hideScoreboard",
-      });
+      await api.hideScoreboard();
     }
     if (e.keyCode === 192) {
       console.log("Backtick pressed");
-      await client.post("/open-console/");
+      await api.openConsole();
     }
   };
   const handlePreviousRound = async (e: MouseEvent) => {
     e.stopPropagation();
-    await client.post("/previous-round");
+    await api.goToPreviousRound();
   };
   const handleNextRound = async (e: MouseEvent) => {
     e.stopPropagation();
-    await client.post("/next-round");
+    await api.goToNextRound();
   };
   const handleVolumeChange = async (volume: number) => {
-    await client.post("/volume", { volume });
+    await api.setVolume(volume);
   };
   const handleToggleGameControl = async (e: MouseEvent) => {
     e.stopPropagation();
@@ -142,16 +134,10 @@ export function Overlay(props: GameStateProps) {
   };
   const handleSpeedChange = useCallback(async (speed: number) => {
     console.log(`New speed detected ${speed}`);
-    await client.post("/speed", { speed });
+    await api.setSpeed(speed);
   }, []);
   const handleToggleXray = async (showXray: boolean) => {
-    let command = "showXray";
-    if (!showXray) {
-      command = "hideXray";
-    }
-    await client.post("/telnet-commands", {
-      command,
-    });
+    await api.toggleXray(showXray);
   };
 
   return (
@@ -243,7 +229,6 @@ type ConnectedGameStateProps = {
   gameState?: GameState;
 };
 export function ConnectedOverlay(props: ConnectedGameStateProps) {
-  const client = useContext(ClientContext);
   const dispatch = useDispatch();
   const appState = useSelector((state: RootState) => state.appState);
 
@@ -251,10 +236,7 @@ export function ConnectedOverlay(props: ConnectedGameStateProps) {
     e.preventDefault();
 
     dispatch(appStateSlice.actions.togglePlaying());
-    await client.post("/manual-commands", {
-      command: "demo_togglepause",
-      type: "bind",
-    });
+    await api.togglePause();
   };
   return (
     <Overlay

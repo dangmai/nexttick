@@ -3,7 +3,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider as ReduxProvider } from "react-redux";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
-import axios from "axios";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { GameState } from "csgo-gsi-types";
 
@@ -20,12 +19,6 @@ import { Preferences } from "./components/Preferences/Preferences";
 import { MainWindow } from "./components/MainWindow/MainWindow";
 
 import { Message } from "../backend/message";
-
-const clientInstance = axios.create({
-  baseURL: "http://localhost:5001",
-});
-
-export const ClientContext = React.createContext(clientInstance);
 
 const store = configureStore({
   reducer: rootReducer,
@@ -61,22 +54,20 @@ export function App() {
   }, []);
   return (
     <ReduxProvider store={store}>
-      <ClientContext.Provider value={clientInstance}>
-        <Router>
-          <Switch>
-            <Route path="/overlay">
-              <ConnectedOverlay gameState={gameState} />
-            </Route>
-            <Route path="/preferences">
-              <Preferences />
-            </Route>
-            <Route path="/debug">
-              <Debug gameState={gameState} />
-            </Route>
-            <Route path="/">{<MainWindow />}</Route>
-          </Switch>
-        </Router>
-      </ClientContext.Provider>
+      <Router>
+        <Switch>
+          <Route path="/overlay">
+            <ConnectedOverlay gameState={gameState} />
+          </Route>
+          <Route path="/preferences">
+            <Preferences />
+          </Route>
+          <Route path="/debug">
+            <Debug gameState={gameState} />
+          </Route>
+          <Route path="/">{<MainWindow />}</Route>
+        </Switch>
+      </Router>
     </ReduxProvider>
   );
 }

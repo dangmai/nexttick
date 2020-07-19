@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, MouseEvent } from "react";
+import React, { useEffect, useState, MouseEvent } from "react";
 
 // reactstrap components
 import {
@@ -19,10 +19,9 @@ import {
   Spinner,
 } from "reactstrap";
 
-import { ClientContext } from "../../App";
+import * as api from "../../api";
 
 export const MainWindow = () => {
-  const client = useContext(ClientContext);
   const [demoPath, setDemoPath] = useState("");
   const [demoLoading, setDemoLoading] = useState(false);
   useEffect(() => {
@@ -40,9 +39,7 @@ export const MainWindow = () => {
     e.preventDefault();
     if (demoPath) {
       setDemoLoading(true);
-      const result = await client.post("/play/", {
-        demoPath,
-      });
+      const result = await api.playDemo(demoPath);
       console.log(result);
       setDemoLoading(false);
     } else {

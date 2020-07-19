@@ -1,16 +1,15 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import "bootstrap/dist/css/bootstrap.css";
 
-import { ClientContext } from "../../App";
+import * as api from "../../api";
 
 export function Preferences() {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
-  const client = useRef(useContext(ClientContext));
   useEffect(() => {
     async function fetchData() {
-      const preferences = await client.current.get("/preferences/");
+      const preferences = await api.getPreferences();
       setWidth(preferences.data.width);
       setHeight(preferences.data.height);
     }
@@ -18,10 +17,7 @@ export function Preferences() {
   }, []);
 
   const updatePreferences = async () => {
-    await client.current.post("/preferences", {
-      width,
-      height,
-    });
+    await api.setPreferences(width, height);
   };
 
   return (
