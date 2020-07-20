@@ -133,7 +133,7 @@ interface GameConfigOutput {
   safezoneY: number;
   showXray: boolean;
 }
-const getCurrentGameConfig = async function (): Promise<GameConfigOutput> {
+const getCurrentGameConfig = async function (): Promise<GameConfigOutput | null> {
   const gameConfigOutput: GameConfigOutput = {
     volume: 0.5,
     safezoneX: 1,
@@ -147,6 +147,10 @@ const getCurrentGameConfig = async function (): Promise<GameConfigOutput> {
     "safezoney",
     "spec_show_xray",
   ]);
+  if (!telnetResult) {
+    console.log("Telnet does not return game config");
+    return null;
+  }
   let matches = telnetResult?.match(/Demo contents for (.*):/);
   if (matches && matches.length > 1) {
     gameConfigOutput.demoPath = matches[1];
@@ -175,7 +179,7 @@ const getCurrentDemoContent = async function () {
   if (!currentDemoContent) {
     if (!currentDemoPath) {
       const currentGameOutput = await getCurrentGameConfig();
-      if (currentGameOutput.demoPath) {
+      if (currentGameOutput?.demoPath) {
         currentDemoPath = currentGameOutput.demoPath;
       }
     }
@@ -394,6 +398,7 @@ const getUpdatedAppState = async function () {
       // Use Telnet to get updated state from CSGO
       const currentGameOutput = await getCurrentGameConfig();
       if (
+        currentGameOutput &&
         currentGameOutput.demoPath &&
         currentGameOutput.demoPath !== currentDemoPath
       ) {
@@ -411,10 +416,11 @@ const getUpdatedAppState = async function () {
         ws.send(JSON.stringify(changeMessage));
       }
       if (
-        currentGameOutput.volume !== currentAppState.volume ||
-        currentGameOutput.safezoneX !== currentAppState.safezoneX ||
-        currentGameOutput.safezoneY !== currentAppState.safezoneY ||
-        currentGameOutput.showXray !== currentAppState.showXray
+        currentGameOutput &&
+        (currentGameOutput.volume !== currentAppState.volume ||
+          currentGameOutput.safezoneX !== currentAppState.safezoneX ||
+          currentGameOutput.safezoneY !== currentAppState.safezoneY ||
+          currentGameOutput.showXray !== currentAppState.showXray)
       ) {
         currentAppState = Object.assign({}, currentAppState, {
           ...currentGameOutput,
