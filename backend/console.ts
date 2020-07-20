@@ -1,4 +1,4 @@
-import { promises as fsPromises } from "fs";
+import { promises as fsPromises, constants as fsConstants } from "fs";
 import path from "path";
 import { spawn } from "child_process";
 import os from "os";
@@ -37,6 +37,37 @@ export async function applyAutoexec() {
       "gamestate_integration_nexttick.cfg"
     )
   );
+}
+
+async function checkFileExists(file: string) {
+  return fsPromises
+    .access(file, fsConstants.F_OK)
+    .then(() => true)
+    .catch(() => false);
+}
+export async function removeNextTickConfigs() {
+  const gsiPath = path.resolve(
+    ...CSGO_PATH,
+    "csgo",
+    "cfg",
+    "gamestate_integration_nexttick.cfg"
+  );
+  const autoExecPath = path.resolve(
+    ...CSGO_PATH,
+    "csgo",
+    "cfg",
+    "nextTickAutoExec.cfg"
+  );
+  const commandPath = path.resolve(...CSGO_PATH, "csgo", "cfg", "nextTick.cfg");
+  if (await checkFileExists(gsiPath)) {
+    await fsPromises.unlink(gsiPath);
+  }
+  if (await checkFileExists(autoExecPath)) {
+    await fsPromises.unlink(autoExecPath);
+  }
+  if (await checkFileExists(commandPath)) {
+    await fsPromises.unlink(commandPath);
+  }
 }
 
 export async function applyCommandsViaBind(
@@ -80,6 +111,22 @@ export async function applyCommandsViaTelnet(
   return await sendCommands(commands);
 }
 
+export async function launchStandardCsgo() {
+  await removeNextTickConfigs();
+  const csgoPid = await platformInstance.findCsgoPid();
+  if (csgoPid) {
+    process.kill(csgoPid);
+  }
+  const steamPath = path.resolve(...STEAM_PATH);
+  let options = ["-applaunch", "730"];
+  const csgoProcess = spawn("steam.exe", options, {
+    cwd: steamPath,
+    detached: true,
+    stdio: "ignore",
+  });
+  csgoProcess.unref();
+}
+
 export function launchCsgo(config: Conf, extraArgs?: string[]) {
   const steamPath = path.resolve(...STEAM_PATH);
   let width = config.get("width") as number;
@@ -115,8 +162,8 @@ export function launchCsgo(config: Conf, extraArgs?: string[]) {
   csgoProcess.unref();
 }
 export async function playDemo(config: Conf, demoPath: string) {
-  const isCsgoRunning = await platformInstance.isCsgoRunning();
-  if (!isCsgoRunning) {
+  const csgoPid = await platformInstance.findCsgoPid();
+  if (!csgoPid) {
     launchCsgo(config, ["+playDemo", demoPath]);
   } else {
     await applyCommandsViaTelnet(`playDemo ${demoPath}`);

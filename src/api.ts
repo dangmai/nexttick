@@ -60,6 +60,14 @@ export async function setSpeed(speed: number) {
   return await client.post("/speed", { speed });
 }
 
+export async function launchStandardCsgo() {
+  return await client.post("/launch-standard");
+}
+
+export async function cleanUpConfigs() {
+  return await client.post("/clean-up");
+}
+
 export async function toggleXray(showXray: boolean) {
   let command = "showXray";
   if (!showXray) {

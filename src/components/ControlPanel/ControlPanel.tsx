@@ -1,6 +1,11 @@
 import React, { useState, ChangeEvent, MouseEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Dropdown, DropdownMenu, DropdownToggle } from "reactstrap";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+} from "reactstrap";
 
 import "./ControlPanel.css";
 import * as api from "../../api";
@@ -17,6 +22,9 @@ interface ControlPanelProps {
   handleToggleGameControl?: (e: MouseEvent) => void;
   handleToggleXray?: (showXray: boolean) => void;
   handleSpeedChange?: (speed: number) => void;
+  handleQuit?: (e: MouseEvent) => void;
+  handleQuitAndReload?: (e: MouseEvent) => void;
+  handleLoadDemo?: (e: MouseEvent) => void;
   appState: AppState & { speed: number };
 }
 const handlePreviousRound = async (e: MouseEvent) => {
@@ -34,14 +42,41 @@ const handleToggleGameControl = async (e: MouseEvent) => {
     ipcRenderer.send("toggleGameControl");
   }
 };
+const handleQuit = async (e: MouseEvent) => {
+  e.stopPropagation();
+  if (window.require) {
+    const { ipcRenderer } = window.require("electron");
+    ipcRenderer.send("quit");
+  }
+};
+const handleQuitAndReload = async (e: MouseEvent) => {
+  e.stopPropagation();
+  await api.launchStandardCsgo();
+
+  if (window.require) {
+    const { ipcRenderer } = window.require("electron");
+    ipcRenderer.send("quit");
+  }
+};
+const handleLoadDemo = async (e: MouseEvent) => {
+  e.stopPropagation();
+
+  if (window.require) {
+    const { ipcRenderer } = window.require("electron");
+    ipcRenderer.send("showMainWindow");
+  }
+};
 
 export const ControlPanel = (props: ControlPanelProps) => {
   const [optionDropdownOpen, setOptionDropdownOpen] = useState(false);
   const [speedDropdownOpen, setSpeedDropdownOpen] = useState(false);
+  const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
   const toggleSpeedDropdown = () =>
     setSpeedDropdownOpen((prevState) => !prevState);
   const toggleOptionDropdown = () =>
     setOptionDropdownOpen((prevState) => !prevState);
+  const toggleActionDropdown = () =>
+    setActionDropdownOpen((prevState) => !prevState);
 
   const { handleSpeedChange, handleToggleXray, appState } = props;
 
@@ -132,7 +167,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
             data-toggle="dropdown"
             aria-expanded={optionDropdownOpen}
           >
-            <i className="fa fa-cog fa-lg" title="More Settings"></i>
+            <i className="fa fa-cog fa-lg mr-5" title="More Settings"></i>
           </DropdownToggle>
           <DropdownMenu
             right
@@ -157,6 +192,47 @@ export const ControlPanel = (props: ControlPanelProps) => {
                 />
                 <span className="custom-toggle-slider rounded-circle" />
               </label>
+            </div>
+          </DropdownMenu>
+        </Dropdown>
+        <Dropdown
+          direction="up"
+          isOpen={actionDropdownOpen}
+          toggle={toggleActionDropdown}
+        >
+          <DropdownToggle
+            tag="span"
+            data-toggle="dropdown"
+            aria-expanded={optionDropdownOpen}
+          >
+            <i className="fa fa-bars fa-lg" title="Menu"></i>
+          </DropdownToggle>
+          <DropdownMenu
+            right
+            className="dropdown-menu"
+            id="action-menu"
+            modifiers={{
+              offset: {
+                enabled: true,
+                offset: "0 20px",
+              },
+            }}
+          >
+            <div
+              onClick={props.handleLoadDemo}
+              className="dropdown-item py-2 px-3"
+            >
+              Load Demo
+            </div>
+            <DropdownItem divider />
+            <div
+              onClick={props.handleQuitAndReload}
+              className="dropdown-item py-2 px-3"
+            >
+              Quit and Reload Game
+            </div>
+            <div onClick={props.handleQuit} className="dropdown-item py-2 px-3">
+              Quit
             </div>
           </DropdownMenu>
         </Dropdown>
@@ -192,6 +268,9 @@ export const ConnectedControlPanel = () => {
       handleToggleXray={handleToggleXray}
       handlePlayPause={handleTogglePlayPause}
       handleSpeedChange={handleSpeedChange}
+      handleQuit={handleQuit}
+      handleQuitAndReload={handleQuitAndReload}
+      handleLoadDemo={handleLoadDemo}
     />
   );
 };

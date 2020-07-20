@@ -31,3 +31,7 @@ div#control-panel div.dropdown-menu .dropdown-item:hover {
 div#control-panel div.dropdown-menu .dropdown-item:focus {
   background-color: rgb(0, 0, 0, 0.5);
 }
+
+div#control-panel div.dropdown-menu#action-menu .dropdown-item {
+  width: 150px;
+}

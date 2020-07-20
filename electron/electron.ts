@@ -141,6 +141,10 @@ ipcMain.on("openOverlay", (event, arg) => {
   createOverlay();
 });
 
+ipcMain.on("quit", () => {
+  app.quit();
+});
+
 ipcMain.on("closeOverlay", (event, arg) => {
   console.log("Closing overlay");
   overlayWin?.close();
@@ -168,4 +172,8 @@ ipcMain.on("chooseDemo", async (event) => {
 
 ipcMain.on("toggleGameControl", async () => {
   toggleGameControl();
+});
+
+ipcMain.on("showMainWindow", async () => {
+  win?.focus();
 });

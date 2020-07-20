@@ -11,10 +11,12 @@ import { getPlatformInstance } from "./platform/platform";
 
 import {
   applyAutoexec,
+  removeNextTickConfigs,
   applyCommandsViaBind,
   applyCommandsViaTelnet,
   playDemo,
   launchCsgo,
+  launchStandardCsgo,
 } from "./console";
 import { parseDemo, DemoResult } from "./demo";
 import { AppState, Message } from "./message";
@@ -259,6 +261,16 @@ app.post("/play", async (req, res) => {
   res.send("Starting demo");
 });
 
+app.post("/clean-up", async (req, res) => {
+  await removeNextTickConfigs();
+  res.send("Configs cleaned up");
+});
+
+app.post("/launch-standard", async (req, res) => {
+  await launchStandardCsgo();
+  res.send("Launching Standard CSGO");
+});
+
 app.post("/launch", async (req, res) => {
   await applyAutoexec();
   await launchCsgo(config);
@@ -359,8 +371,8 @@ const getUpdatedAppState = async function () {
   // First check if CSGO is still running
   if (!lastTimeGamePolled || Date.now() - lastTimeGamePolled > 5000) {
     lastTimeGamePolled = Date.now();
-    const isCsgoRunning = await platformInstance.isCsgoRunning();
-    if (!isCsgoRunning && currentAppState && currentAppState.gameInDemoMode) {
+    const csgoPid = await platformInstance.findCsgoPid();
+    if (!csgoPid && currentAppState && currentAppState.gameInDemoMode) {
       currentAppState = {
         demoPlaying: false,
         demoPath: null,
@@ -378,7 +390,7 @@ const getUpdatedAppState = async function () {
       ws.send(JSON.stringify(changeMessage));
       return;
     }
-    if (isCsgoRunning) {
+    if (csgoPid) {
       // Use Telnet to get updated state from CSGO
       const currentGameOutput = await getCurrentGameConfig();
       if (

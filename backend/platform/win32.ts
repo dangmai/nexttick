@@ -33,12 +33,18 @@ export function activateWindow(
   }
 }
 
-export async function isCsgoRunning(): Promise<boolean> {
+export async function findCsgoPid(): Promise<number | null> {
   return new Promise((resolve, reject) => {
     exec("tasklist", {}, (err: ExecException | null, stdout: string) => {
       if (err) reject(err);
 
-      resolve(stdout.toLowerCase().indexOf("csgo.exe") > -1);
+      const taskList = stdout.toLowerCase();
+      let matches = taskList.match(/csgo\.exe\s+([0-9]*)\s/);
+      if (matches && matches.length > 1) {
+        resolve(parseInt(matches[1]));
+      } else {
+        resolve();
+      }
     });
   });
 }
