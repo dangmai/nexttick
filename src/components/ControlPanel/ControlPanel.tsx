@@ -214,7 +214,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
             modifiers={{
               offset: {
                 enabled: true,
-                offset: "0 20px",
+                offset: "20px 20px",
               },
             }}
           >
