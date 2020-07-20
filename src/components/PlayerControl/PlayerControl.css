@@ -1,5 +1,5 @@
 div.player-control {
-  position: fixed;
+  position: relative;
   width: 100%;
   height: 100%;
 }
@@ -15,47 +15,47 @@ div.observer-slot:hover {
 }
 
 div.observer-slot#observer-1 {
-  position: fixed;
+  position: absolute;
   top: 50%;
 }
 #observer-2 {
-  position: fixed;
+  position: absolute;
   top: 55.5%;
 }
 #observer-3 {
-  position: fixed;
+  position: absolute;
   top: 61.5%;
 }
 #observer-4 {
-  position: fixed;
+  position: absolute;
   top: 67.5%;
 }
 #observer-5 {
-  position: fixed;
+  position: absolute;
   top: 73%;
 }
 #observer-6 {
-  position: fixed;
+  position: absolute;
   top: 50%;
   right: 0%;
 }
 #observer-7 {
-  position: fixed;
+  position: absolute;
   top: 55.5%;
   right: 0%;
 }
 #observer-8 {
-  position: fixed;
+  position: absolute;
   top: 61.5%;
   right: 0%;
 }
 #observer-9 {
-  position: fixed;
+  position: absolute;
   top: 67.5%;
   right: 0%;
 }
 #observer-0 {
-  position: fixed;
+  position: absolute;
   top: 73%;
   right: 0%;
 }
