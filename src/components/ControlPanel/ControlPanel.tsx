@@ -95,7 +95,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
   return (
     <div
       id="control-panel"
-      className="d-flex justify-content-between pb-3 pt-3"
+      className="d-flex justify-content-between pt-1"
       style={{ paddingLeft: "22%", paddingRight: "22%" }}
     >
       <div>
@@ -147,7 +147,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
             modifiers={{
               offset: {
                 enabled: true,
-                offset: "0 20px",
+                offset: "0 10px",
               },
             }}
           >
@@ -175,7 +175,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
             modifiers={{
               offset: {
                 enabled: true,
-                offset: "0 20px",
+                offset: "0 10px",
               },
             }}
           >
@@ -214,7 +214,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
             modifiers={{
               offset: {
                 enabled: true,
-                offset: "20px 20px",
+                offset: "20px 10px",
               },
             }}
           >
