@@ -3,6 +3,7 @@ import Conf from "conf";
 import isDev from "electron-is-dev";
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
+  REDUX_DEVTOOLS,
 } from "electron-devtools-installer";
 import { getPlatformInstance } from "../backend/platform/platform";
 import { GameStateChangeMessage } from "../backend/message";
@@ -38,11 +39,6 @@ function createWindow() {
   }
 
   win.on("closed", () => (win = null));
-
-  // DevTools
-  installExtension(REACT_DEVELOPER_TOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log("An error occurred: ", err));
 
   console.log("Window loaded");
 }
@@ -111,6 +107,29 @@ const toggleGameControl = () => {
 };
 
 app.on("ready", () => {
+  if (isDev) {
+    console.log("Loading extensions");
+    // DevTools
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then(() => {
+        console.log(`Added React Developer Tool`);
+      })
+      .catch((err) =>
+        console.log(
+          "An error occured while installing React Developer Tool:",
+          err
+        )
+      )
+      .then(() => {
+        return installExtension(REDUX_DEVTOOLS);
+      })
+      .then(() => {
+        console.log("Added Redux Developer Tool");
+      })
+      .catch((err) =>
+        console.log("An error while installing Redux Developer Tool:", err)
+      );
+  }
   createWindow();
 
   globalShortcut.register(platformInstance.getDebugShortcut(), () => {
