@@ -105,6 +105,16 @@ OverlayIn169.story = {
   name: "Overlay in 16:9 (1920x1080)",
 };
 
+export const OverlayIn169_2 = () => (
+  <div style={{ position: "relative", width: "3840px" }}>
+    <img alt="CSGO" src="https://i.imgur.com/OS0EHHg.jpg" />
+    <Overlay />
+  </div>
+);
+OverlayIn169_2.story = {
+  name: "Overlay in 16:9 (3840x2160)",
+};
+
 export const OverlayIn1610 = () => (
   <div style={{ position: "relative", width: "1440px" }}>
     <img alt="CSGO" src="https://i.imgur.com/rAOwJ80.png" />
