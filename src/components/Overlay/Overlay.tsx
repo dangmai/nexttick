@@ -1,4 +1,4 @@
-import React, { useEffect, MouseEvent, KeyboardEvent } from "react";
+import React, { useEffect, KeyboardEvent } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GameState } from "csgo-gsi-types";
 
@@ -8,7 +8,6 @@ import "./Overlay.css";
 import * as api from "../../api";
 import { ConnectedPlayerControl } from "../PlayerControl/PlayerControl";
 import { ConnectedControlPanel } from "../ControlPanel/ControlPanel";
-import { AppState } from "../../../backend/message";
 import { AppThunk } from "../../store";
 
 export const appStateSlice = createSlice({
@@ -107,11 +106,7 @@ const handleKeyUp = async (e: KeyboardEvent) => {
   }
 };
 
-interface OverlayProps {
-  appState?: AppState;
-  handleTogglePlayPause?: (e: MouseEvent) => void;
-}
-export function Overlay(props: OverlayProps) {
+export function Overlay() {
   useEffect(() => {
     document.title = "NextTick - Overlay";
   }, []);
