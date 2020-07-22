@@ -5,8 +5,11 @@ div.player-control {
 }
 
 div.observer-slot {
-  border: salmon solid 1px;
   position: absolute;
+}
+
+div.observer-slot:hover {
+  box-shadow: 0 0 10px #ccc;
 }
 
 div.observer-slot-right {
