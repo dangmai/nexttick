@@ -36,7 +36,11 @@ export function App() {
           <Route path="/debug">
             <Debug />
           </Route>
-          <Route path="/">{<MainWindow />}</Route>
+          <Route path="/">
+            <Websocket>
+              <MainWindow />
+            </Websocket>
+          </Route>
         </Switch>
       </Router>
     </ReduxProvider>
