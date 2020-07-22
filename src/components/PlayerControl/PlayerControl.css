@@ -6,56 +6,13 @@ div.player-control {
 
 div.observer-slot {
   border: salmon solid 1px;
-  width: 18.5%;
-  height: 5.5%;
+  position: absolute;
+}
+
+div.observer-slot-right {
+  right: 0;
 }
 
 div.observer-slot:hover {
   cursor: pointer;
-}
-
-div.observer-slot#observer-1 {
-  position: absolute;
-  top: 50%;
-}
-#observer-2 {
-  position: absolute;
-  top: 55.5%;
-}
-#observer-3 {
-  position: absolute;
-  top: 61.5%;
-}
-#observer-4 {
-  position: absolute;
-  top: 67.5%;
-}
-#observer-5 {
-  position: absolute;
-  top: 73%;
-}
-#observer-6 {
-  position: absolute;
-  top: 50%;
-  right: 0%;
-}
-#observer-7 {
-  position: absolute;
-  top: 55.5%;
-  right: 0%;
-}
-#observer-8 {
-  position: absolute;
-  top: 61.5%;
-  right: 0%;
-}
-#observer-9 {
-  position: absolute;
-  top: 67.5%;
-  right: 0%;
-}
-#observer-0 {
-  position: absolute;
-  top: 73%;
-  right: 0%;
 }

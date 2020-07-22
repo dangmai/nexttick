@@ -96,7 +96,7 @@ export default {
 };
 
 export const OverlayIn169 = () => (
-  <div style={{ position: "relative", width: "1920px" }}>
+  <div style={{ position: "relative", width: "1920px", height: "1080px" }}>
     <img alt="CSGO" src="https://i.imgur.com/5NhVGB1.png" />
     <Overlay />
   </div>
@@ -106,7 +106,7 @@ OverlayIn169.story = {
 };
 
 export const OverlayIn169_2 = () => (
-  <div style={{ position: "relative", width: "3840px" }}>
+  <div style={{ position: "relative", width: "3840px", height: "2160px" }}>
     <img alt="CSGO" src="https://i.imgur.com/OS0EHHg.jpg" />
     <Overlay />
   </div>
@@ -116,7 +116,7 @@ OverlayIn169_2.story = {
 };
 
 export const OverlayIn1610 = () => (
-  <div style={{ position: "relative", width: "1440px" }}>
+  <div style={{ position: "relative", width: "1440px", height: "900px" }}>
     <img alt="CSGO" src="https://i.imgur.com/rAOwJ80.png" />
     <Overlay />
   </div>
@@ -126,7 +126,7 @@ OverlayIn1610.story = {
 };
 
 export const OverlayIn43 = () => (
-  <div style={{ position: "relative", width: "1280px" }}>
+  <div style={{ position: "relative", width: "1280px", height: "960px" }}>
     <img alt="CSGO" src="https://i.imgur.com/doEASH0.png" />
     <Overlay />
   </div>
