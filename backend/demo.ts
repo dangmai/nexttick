@@ -1,19 +1,8 @@
 import { promises as fsPromises } from "fs";
 
 import { DemoFile } from "demofile";
+import { DemoResult } from "./types";
 
-interface Round {
-  roundNumber: number;
-  time: number;
-  tick: number;
-}
-interface Player {
-  steamId: string;
-}
-export interface DemoResult {
-  players: Player[];
-  rounds: Round[];
-}
 export const parseDemo = async (demoPath: string): Promise<DemoResult> => {
   return new Promise(async (resolve) => {
     const result: DemoResult = {
@@ -34,7 +23,6 @@ export const parseDemo = async (demoPath: string): Promise<DemoResult> => {
     });
 
     demo.on("end", (e) => {
-      console.log("Done");
       resolve(result);
     });
 
@@ -54,3 +42,12 @@ export const parseDemo = async (demoPath: string): Promise<DemoResult> => {
     demo.parse(content);
   });
 };
+
+parseDemo(process.argv[2])
+  .then((result) => {
+    console.log(JSON.stringify(result));
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });

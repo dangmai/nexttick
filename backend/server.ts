@@ -1,5 +1,8 @@
-import Conf from "conf";
+import { fork } from "child_process";
+import path from "path";
 import http from "http";
+
+import Conf from "conf";
 import express, { Request, Response, NextFunction } from "express";
 import WebSocket from "ws";
 import cors from "cors";
@@ -18,7 +21,7 @@ import {
   launchCsgo,
   launchStandardCsgo,
 } from "./console";
-import { parseDemo, DemoResult } from "./demo";
+import { DemoResult } from "./types";
 import { AppState, Message } from "./message";
 
 const config = new Conf();
@@ -175,7 +178,26 @@ const getCurrentGameConfig = async function (): Promise<GameConfigOutput | null>
   console.log(gameConfigOutput);
   return gameConfigOutput;
 };
+const parseDemo = async function (demoPath: string): Promise<DemoResult> {
+  return new Promise((resolve) => {
+    const process = fork(path.resolve(__dirname, "demo.js"), [demoPath], {
+      silent: true,
+    });
+    let stdout: Buffer;
+    process.stdout?.on("data", (data) => {
+      if (stdout) {
+        stdout += data;
+      } else {
+        stdout = data;
+      }
+    });
+    process.on("close", () => {
+      resolve(JSON.parse(stdout.toString()));
+    });
+  });
+};
 const getCurrentDemoContent = async function () {
+  console.log(`Get current demo content for ${currentDemoPath}`);
   if (!currentDemoContent) {
     if (!currentDemoPath) {
       const currentGameOutput = await getCurrentGameConfig();
@@ -185,7 +207,6 @@ const getCurrentDemoContent = async function () {
     }
     if (currentDemoPath) {
       currentDemoContent = await parseDemo(currentDemoPath);
-      console.log(currentDemoContent);
     }
   }
 };
@@ -405,7 +426,6 @@ const getUpdatedAppState = async function () {
         console.log("Setting new demo path");
         currentDemoPath = currentGameOutput.demoPath;
         currentDemoContent = await parseDemo(currentDemoPath);
-        console.log(currentDemoContent);
         currentAppState = Object.assign({}, currentAppState, {
           demoPath: currentDemoPath,
         });
