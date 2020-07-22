@@ -50,7 +50,7 @@
     "electron:build": "yarn build && tsc -p backend && tsc -p electron && yarn run ahk:build && electron-builder",
     "backend:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/server.js\"",
     "backend:mock:dev": "tsc-watch -p backend --onSuccess \"node ./build/backend/mockServer.js\"",
-    "storybook": "start-storybook -p 9009 -s public",
+    "storybook": "concurrently \"start-storybook -p 9009 -s public\" \"yarn run backend:mock:dev\"",
     "build-storybook": "build-storybook -s public",
     "ahk:dev": "onchange scripts\\activate.ahk --  yarn run ahk:build",
     "ahk:build": "C:\\\"Program Files\"\\AutoHotkey\\Compiler\\Ahk2exe.exe /in scripts/activate.ahk /out %cd%\\build\\activate.exe /icon ../public/favicon.ico"
