@@ -56,148 +56,47 @@ export const PlayerControl = (props: PlayerControlProps) => {
   if (!players || players.length < 10) {
     return <div ref={frameRef} className="player-control"></div>;
   }
+  const generateSlot = (slotNumber: number, isRightSlot = false) => {
+    const panelSlotNumber = slotNumber === 0 ? 4 : (slotNumber - 1) % 5;
+    return (
+      <div
+        className={
+          "observer-slot " +
+          (isRightSlot ? "observer-slot-right " : "") +
+          (players[slotNumber] && players[slotNumber].health === 0
+            ? "observer-slot-dead"
+            : "")
+        }
+        style={
+          !players[slotNumber] || !panelPositions[panelSlotNumber]
+            ? { display: "none" }
+            : {
+                top: `${panelPositions[panelSlotNumber].top}px`,
+                width: `${panelPositions[panelSlotNumber].width}px`,
+                height: `${panelPositions[panelSlotNumber].height}px`,
+              }
+        }
+        onClick={
+          players[slotNumber] && players[slotNumber].health > 0
+            ? props.handleSpecPlayer
+            : () => {}
+        }
+        id={"observer-" + slotNumber}
+      ></div>
+    );
+  };
   return (
     <div ref={frameRef} className="player-control">
-      <div
-        className="observer-slot"
-        style={
-          !players[1] || players[1].health === 0 || !panelPositions[0]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[0].top}px`,
-                width: `${panelPositions[0].width}px`,
-                height: `${panelPositions[0].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-1"
-      ></div>
-      <div
-        className="observer-slot"
-        style={
-          !players[2] || players[2].health === 0 || !panelPositions[1]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[1].top}px`,
-                width: `${panelPositions[1].width}px`,
-                height: `${panelPositions[1].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-2"
-      ></div>
-      <div
-        className="observer-slot"
-        style={
-          !players[3] || players[3].health === 0 || !panelPositions[2]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[2].top}px`,
-                width: `${panelPositions[2].width}px`,
-                height: `${panelPositions[2].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-3"
-      ></div>
-      <div
-        className="observer-slot"
-        style={
-          !players[4] || players[4].health === 0 || !panelPositions[3]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[3].top}px`,
-                width: `${panelPositions[3].width}px`,
-                height: `${panelPositions[3].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-4"
-      ></div>
-      <div
-        className="observer-slot"
-        style={
-          !players[5] || players[5].health === 0 || !panelPositions[4]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[4].top}px`,
-                width: `${panelPositions[4].width}px`,
-                height: `${panelPositions[4].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-5"
-      ></div>
-      <div
-        className="observer-slot observer-slot-right"
-        style={
-          !players[6] || players[6].health === 0 || !panelPositions[0]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[0].top}px`,
-                width: `${panelPositions[0].width}px`,
-                height: `${panelPositions[0].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-6"
-      ></div>
-      <div
-        className="observer-slot observer-slot-right"
-        style={
-          !players[7] || players[7].health === 0 || !panelPositions[1]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[1].top}px`,
-                width: `${panelPositions[1].width}px`,
-                height: `${panelPositions[1].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-7"
-      ></div>
-      <div
-        className="observer-slot observer-slot-right"
-        style={
-          !players[8] || players[8].health === 0 || !panelPositions[2]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[2].top}px`,
-                width: `${panelPositions[2].width}px`,
-                height: `${panelPositions[2].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-8"
-      ></div>
-      <div
-        className="observer-slot observer-slot-right"
-        style={
-          !players[9] || players[9].health === 0 || !panelPositions[3]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[3].top}px`,
-                width: `${panelPositions[3].width}px`,
-                height: `${panelPositions[3].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-9"
-      ></div>
-      <div
-        className="observer-slot observer-slot-right"
-        style={
-          !players[0] || players[0].health === 0 || !panelPositions[4]
-            ? { display: "none" }
-            : {
-                top: `${panelPositions[4].top}px`,
-                width: `${panelPositions[4].width}px`,
-                height: `${panelPositions[4].height}px`,
-              }
-        }
-        onClick={props.handleSpecPlayer}
-        id="observer-0"
-      ></div>
+      {generateSlot(1)}
+      {generateSlot(2)}
+      {generateSlot(3)}
+      {generateSlot(4)}
+      {generateSlot(5)}
+      {generateSlot(6, true)}
+      {generateSlot(7, true)}
+      {generateSlot(8, true)}
+      {generateSlot(9, true)}
+      {generateSlot(0, true)}
     </div>
   );
 };

@@ -19,3 +19,8 @@ div.observer-slot-right {
 div.observer-slot:hover {
   cursor: pointer;
 }
+
+div.observer-slot-dead:hover {
+  cursor: default;
+  box-shadow: 0 0 10px #f5365c;
+}
