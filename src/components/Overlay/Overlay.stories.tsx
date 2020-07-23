@@ -1,4 +1,6 @@
-import React from "react";
+import React, { FunctionComponent, useEffect } from "react";
+import { withKnobs, boolean } from "@storybook/addon-knobs";
+
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider as ReduxProvider } from "react-redux";
 import axios from "axios";
@@ -15,81 +17,157 @@ const store = configureStore({
   reducer: rootReducer,
 });
 
-const onWebsocketConnected = () => {
-  axios.post("http://localhost:5001/ws/gamestate/", {
-    allplayers: {
-      "1": {
-        observer_slot: 1,
-        state: {
-          health: 100,
-        },
-      },
-      "2": {
-        observer_slot: 2,
-        state: {
-          health: 100,
-        },
-      },
-      "3": {
-        observer_slot: 3,
-        state: {
-          health: 100,
-        },
-      },
-      "4": {
-        observer_slot: 4,
-        state: {
-          health: 100,
-        },
-      },
-      "5": {
-        observer_slot: 5,
-        state: {
-          health: 100,
-        },
-      },
-      "6": {
-        observer_slot: 6,
-        state: {
-          health: 100,
-        },
-      },
-      "7": {
-        observer_slot: 7,
-        state: {
-          health: 100,
-        },
-      },
-      "8": {
-        observer_slot: 8,
-        state: {
-          health: 100,
-        },
-      },
-      "9": {
-        observer_slot: 9,
-        state: {
-          health: 100,
-        },
-      },
-      "10": {
-        observer_slot: 0,
-        state: {
-          health: 100,
-        },
+const initialGameState = {
+  allplayers: {
+    "1": {
+      observer_slot: 1,
+      state: {
+        health: 100,
       },
     },
-  });
+    "2": {
+      observer_slot: 2,
+      state: {
+        health: 100,
+      },
+    },
+    "3": {
+      observer_slot: 3,
+      state: {
+        health: 100,
+      },
+    },
+    "4": {
+      observer_slot: 4,
+      state: {
+        health: 100,
+      },
+    },
+    "5": {
+      observer_slot: 5,
+      state: {
+        health: 100,
+      },
+    },
+    "6": {
+      observer_slot: 6,
+      state: {
+        health: 100,
+      },
+    },
+    "7": {
+      observer_slot: 7,
+      state: {
+        health: 100,
+      },
+    },
+    "8": {
+      observer_slot: 8,
+      state: {
+        health: 100,
+      },
+    },
+    "9": {
+      observer_slot: 9,
+      state: {
+        health: 100,
+      },
+    },
+    "10": {
+      observer_slot: 0,
+      state: {
+        health: 100,
+      },
+    },
+  },
 };
+const gameStateWithDeadPlayers = {
+  allplayers: {
+    "1": {
+      observer_slot: 1,
+      state: {
+        health: 0,
+      },
+    },
+    "2": {
+      observer_slot: 2,
+      state: {
+        health: 100,
+      },
+    },
+    "3": {
+      observer_slot: 3,
+      state: {
+        health: 90,
+      },
+    },
+    "4": {
+      observer_slot: 4,
+      state: {
+        health: 100,
+      },
+    },
+    "5": {
+      observer_slot: 5,
+      state: {
+        health: 100,
+      },
+    },
+    "6": {
+      observer_slot: 6,
+      state: {
+        health: 100,
+      },
+    },
+    "7": {
+      observer_slot: 7,
+      state: {
+        health: 100,
+      },
+    },
+    "8": {
+      observer_slot: 8,
+      state: {
+        health: 0,
+      },
+    },
+    "9": {
+      observer_slot: 9,
+      state: {
+        health: 100,
+      },
+    },
+    "10": {
+      observer_slot: 0,
+      state: {
+        health: 0,
+      },
+    },
+  },
+};
+
+const sendNewGameState = (gameState: any) => {
+  axios.post("http://localhost:5001/ws/gamestate/", gameState);
+};
+const WebsocketWithKnobs: FunctionComponent = (props) => {
+  const gameState = boolean("With dead players", false)
+    ? gameStateWithDeadPlayers
+    : initialGameState;
+
+  return (
+    <Websocket onConnectionOpened={() => sendNewGameState(gameState)}>
+      {props.children}
+    </Websocket>
+  );
+};
+
 export default {
   component: Overlay,
   title: "Overlay",
   decorators: [
     (storyFn: typeof Overlay, context: any) => (
       <ReduxProvider store={store}>
-        <Websocket onConnectionOpened={onWebsocketConnected}>
-          {storyFn()}
-        </Websocket>
+        <WebsocketWithKnobs>{withKnobs(storyFn, context)}</WebsocketWithKnobs>
       </ReduxProvider>
     ),
   ],
