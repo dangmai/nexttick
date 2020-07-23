@@ -54,20 +54,10 @@ export const PlayerControl = (props: PlayerControlProps) => {
     };
   }, []);
   if (!players || players.length < 10) {
-    return (
-      <div
-        ref={frameRef}
-        className="player-control"
-        onClick={props.handleTogglePlayPause}
-      ></div>
-    );
+    return <div ref={frameRef} className="player-control"></div>;
   }
   return (
-    <div
-      ref={frameRef}
-      className="player-control"
-      onClick={props.handleTogglePlayPause}
-    >
+    <div ref={frameRef} className="player-control">
       <div
         className="observer-slot"
         style={
