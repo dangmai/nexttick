@@ -5,6 +5,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
+  Spinner,
 } from "reactstrap";
 
 import "./ControlPanel.css";
@@ -104,19 +105,40 @@ export const ControlPanel = (props: ControlPanelProps) => {
             "fa fa-lg mx-5 " +
             (!props.appState?.demoPlaying ? "fa-play" : "fa-pause")
           }
+          style={{
+            marginTop: "15px",
+            marginBottom: "15px",
+          }}
           title="Play/Pause"
           onClick={props.handlePlayPause}
         ></i>
-        <i
-          className="fa fa-step-backward fa-lg mr-5"
-          title="Previous Round"
-          onClick={props.handlePreviousRound}
-        ></i>
-        <i
-          className="fa fa-step-forward fa-lg mr-5"
-          title="Next Round"
-          onClick={props.handleNextRound}
-        ></i>
+        {!appState.isProcessingDemo ? (
+          <i
+            className="fa fa-step-backward fa-lg mr-5"
+            title="Previous Round"
+            onClick={props.handlePreviousRound}
+          ></i>
+        ) : null}
+        {!appState.isProcessingDemo ? (
+          <i
+            className="fa fa-step-forward fa-lg mr-5"
+            title="Next Round"
+            onClick={props.handleNextRound}
+          ></i>
+        ) : null}
+        {appState.isProcessingDemo ? (
+          <span className="mr-5">
+            <Spinner
+              color="primary"
+              style={{
+                width: "1.5rem",
+                height: "1.5rem",
+              }}
+              className="mr-2"
+            />
+            Analyzing Demo
+          </span>
+        ) : null}
         <ConnectedVolume />
       </div>
       <div>

@@ -146,16 +146,49 @@ const gameStateWithDeadPlayers = {
   },
 };
 
+const initialAppState = {
+  demoPlaying: true,
+  demoPath: null,
+  gameInDemoMode: true,
+  volume: 0.5,
+  safezoneX: 1,
+  safezoneY: 1,
+  showXray: true,
+  isProcessingDemo: false,
+};
+
+const processingDemoAppState = {
+  demoPlaying: true,
+  demoPath: null,
+  gameInDemoMode: true,
+  volume: 0.5,
+  safezoneX: 1,
+  safezoneY: 1,
+  showXray: true,
+  isProcessingDemo: true,
+};
+
 const sendNewGameState = (gameState: any) => {
   axios.post("http://localhost:5001/ws/gamestate/", gameState);
+};
+const sendNewAppState = (appState: any) => {
+  axios.post("http://localhost:5001/ws/appstate/", appState);
 };
 const WebsocketWithKnobs: FunctionComponent = (props) => {
   const gameState = boolean("With dead players", false)
     ? gameStateWithDeadPlayers
     : initialGameState;
+  const appState = boolean("Is Processing Demo", false)
+    ? processingDemoAppState
+    : initialAppState;
 
   return (
-    <Websocket onConnectionOpened={() => sendNewGameState(gameState)}>
+    <Websocket
+      onConnectionOpened={() => {
+        sendNewGameState(gameState);
+        sendNewAppState(appState);
+      }}
+    >
       {props.children}
     </Websocket>
   );

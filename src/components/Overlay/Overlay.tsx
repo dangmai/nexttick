@@ -21,6 +21,7 @@ export const appStateSlice = createSlice({
     safezoneX: 0,
     safezoneY: 0,
     showXray: true,
+    isProcessingDemo: false,
   },
   reducers: {
     togglePlayingState: (state) => {
