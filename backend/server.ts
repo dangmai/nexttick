@@ -179,6 +179,9 @@ const getCurrentGameConfig = async function (): Promise<GameConfigOutput | null>
   return gameConfigOutput;
 };
 const parseDemo = async function (demoPath: string): Promise<DemoResult> {
+  updateAppState({
+    isProcessingDemo: true,
+  });
   return new Promise((resolve) => {
     const process = fork(path.resolve(__dirname, "demo.js"), [demoPath], {
       silent: true,
@@ -192,6 +195,9 @@ const parseDemo = async function (demoPath: string): Promise<DemoResult> {
       }
     });
     process.on("close", () => {
+      updateAppState({
+        isProcessingDemo: false,
+      });
       resolve(JSON.parse(stdout.toString()));
     });
   });
@@ -312,55 +318,31 @@ app.post("/gsi", async (req, res) => {
     gameState,
   };
   if (ws) {
-    let changeMessage: Message | null = null;
     if (
       typeof gameState.allplayers !== "object" &&
       currentAppState &&
       currentAppState.demoPlaying
     ) {
       console.log("Demo not playing because allplayers not present");
-      currentAppState = Object.assign({}, currentAppState, {
+      updateAppState({
         demoPlaying: false,
         gameInDemoMode: false,
       });
-      changeMessage = {
-        type: "change",
-        ...currentAppState,
-      };
     } else if (!currentAppState && typeof gameState.allplayers === "object") {
       console.log(
         "Demo playing because first time receiving GSI with allplayers"
       );
-      currentAppState = {
-        demoPlaying: true,
-        demoPath: null,
-        gameInDemoMode: true,
-        volume: 0.5,
-        safezoneX: 1,
-        safezoneY: 1,
-        showXray: true,
-      };
-      changeMessage = {
-        type: "change",
-        ...currentAppState,
-      };
+      createInitialAppState();
     } else if (
       currentAppState &&
       !currentAppState.demoPlaying &&
       typeof gameState.allplayers === "object"
     ) {
       console.log("Demo playing because we are receiving GSI");
-      currentAppState = Object.assign({}, currentAppState, {
+      currentAppState = updateAppState({
         demoPlaying: true,
         gameInDemoMode: true,
       });
-      changeMessage = {
-        type: "change",
-        ...currentAppState,
-      };
-    }
-    if (changeMessage !== null) {
-      ws.send(JSON.stringify(changeMessage));
     }
     ws.send(JSON.stringify(gameStateMessage));
   }
@@ -392,27 +374,54 @@ function errorMiddleware(
 }
 app.use(errorMiddleware);
 
+const createInitialAppState = function (sendChangeMessage = true): AppState {
+  currentAppState = {
+    demoPlaying: true,
+    demoPath: null,
+    gameInDemoMode: true,
+    volume: 0.5,
+    safezoneX: 1,
+    safezoneY: 1,
+    showXray: true,
+    isProcessingDemo: false,
+  };
+  if (sendChangeMessage) {
+    const changeMessage: Message = {
+      type: "change",
+      ...currentAppState,
+    };
+    ws.send(JSON.stringify(changeMessage));
+  }
+  return currentAppState;
+};
+
+const updateAppState = function (
+  updatedAttributes: Partial<AppState>
+): AppState {
+  if (!currentAppState) {
+    createInitialAppState(false);
+  }
+  currentAppState = Object.assign({}, currentAppState, updatedAttributes);
+
+  const changeMessage: Message = {
+    type: "change",
+    ...currentAppState,
+  };
+  ws.send(JSON.stringify(changeMessage));
+  return currentAppState;
+};
+
 const getUpdatedAppState = async function () {
   // First check if CSGO is still running
   if (!lastTimeGamePolled || Date.now() - lastTimeGamePolled > 5000) {
     lastTimeGamePolled = Date.now();
     const csgoPid = await platformInstance.findCsgoPid();
     if (!csgoPid && currentAppState && currentAppState.gameInDemoMode) {
-      currentAppState = {
-        demoPlaying: false,
-        demoPath: null,
-        gameInDemoMode: false,
-        volume: 0.5,
-        safezoneX: 1,
-        safezoneY: 1,
-        showXray: true,
-      };
       console.log("Demo not playing because CSGO process is no longer running");
-      const changeMessage: Message = {
-        type: "change",
-        ...currentAppState,
-      };
-      ws.send(JSON.stringify(changeMessage));
+      updateAppState({
+        demoPlaying: false,
+        gameInDemoMode: false,
+      });
       return;
     }
     if (csgoPid) {
@@ -426,14 +435,9 @@ const getUpdatedAppState = async function () {
         console.log("Setting new demo path");
         currentDemoPath = currentGameOutput.demoPath;
         currentDemoContent = await parseDemo(currentDemoPath);
-        currentAppState = Object.assign({}, currentAppState, {
+        updateAppState({
           demoPath: currentDemoPath,
         });
-        const changeMessage: Message = {
-          type: "change",
-          ...currentAppState,
-        };
-        ws.send(JSON.stringify(changeMessage));
       }
       if (
         currentGameOutput &&
@@ -442,14 +446,7 @@ const getUpdatedAppState = async function () {
           currentGameOutput.safezoneY !== currentAppState.safezoneY ||
           currentGameOutput.showXray !== currentAppState.showXray)
       ) {
-        currentAppState = Object.assign({}, currentAppState, {
-          ...currentGameOutput,
-        });
-        const changeMessage: Message = {
-          type: "change",
-          ...currentAppState,
-        };
-        ws.send(JSON.stringify(changeMessage));
+        updateAppState(currentGameOutput);
       }
     }
   }
@@ -460,16 +457,11 @@ const getUpdatedAppState = async function () {
     currentTimestamp - lastReceivedAt > 1000 &&
     currentAppState?.demoPlaying
   ) {
-    currentAppState = Object.assign({}, currentAppState, {
+    console.log("Demo not playing because GSI hasn't received communication");
+    updateAppState({
       demoPlaying: false,
       gameInDemoMode: true,
     });
-    console.log("Demo not playing because GSI hasn't received communication");
-    const changeMessage: Message = {
-      type: "change",
-      ...currentAppState,
-    };
-    ws.send(JSON.stringify(changeMessage));
   }
 };
 

@@ -8,6 +8,7 @@ export interface AppState {
   gameInDemoMode: boolean;
   demoPlaying: boolean;
   demoPath: string | null;
+  isProcessingDemo: boolean;
   volume: number;
   safezoneX: number;
   safezoneY: number;
