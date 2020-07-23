@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect } from "react";
+import React, { FunctionComponent } from "react";
 import { withKnobs, boolean } from "@storybook/addon-knobs";
 
 import { configureStore } from "@reduxjs/toolkit";
