@@ -99,16 +99,12 @@ export const ControlPanel = (props: ControlPanelProps) => {
       className="d-flex justify-content-between pt-1"
       style={{ paddingLeft: "22%", paddingRight: "22%" }}
     >
-      <div>
+      <div className="control-panel-left">
         <i
           className={
             "fa fa-lg mx-5 " +
             (!props.appState?.demoPlaying ? "fa-play" : "fa-pause")
           }
-          style={{
-            marginTop: "15px",
-            marginBottom: "15px",
-          }}
           title="Play/Pause"
           onClick={props.handlePlayPause}
         ></i>
@@ -141,7 +137,7 @@ export const ControlPanel = (props: ControlPanelProps) => {
         ) : null}
         <ConnectedVolume />
       </div>
-      <div>
+      <div className="control-panel-right">
         <i
           className="fa fa-window-restore fa-lg mr-5"
           title="Switch to Game Control"
