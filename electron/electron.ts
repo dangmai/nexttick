@@ -49,6 +49,7 @@ function createOverlay() {
     overlayWin = new BrowserWindow({
       frame: false,
       transparent: true,
+      title: "NextTick - Overlay",
       webPreferences: {
         nodeIntegration: true,
       },
@@ -134,6 +135,9 @@ app.on("ready", () => {
 
   globalShortcut.register(platformInstance.getDebugShortcut(), () => {
     toggleDebugWindow();
+  });
+  globalShortcut.register(platformInstance.getOverlayShortcut(), () => {
+    createOverlay();
   });
   globalShortcut.register("shift+f3", async () => {
     toggleGameControl();

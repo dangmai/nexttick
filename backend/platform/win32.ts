@@ -2,6 +2,10 @@ import { exec, spawn, ExecException } from "child_process";
 import path from "path";
 
 export function getDebugShortcut(): string {
+  return "CommandOrControl+Shift+D";
+}
+
+export function getOverlayShortcut(): string {
   return "CommandOrControl+Shift+O";
 }
 

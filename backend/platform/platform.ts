@@ -3,6 +3,7 @@ import * as Win32 from "./win32";
 
 export interface PlatformCommands {
   getDebugShortcut(): string;
+  getOverlayShortcut(): string;
   activateWindow(
     windowName: string,
     keyToSend?: string,
