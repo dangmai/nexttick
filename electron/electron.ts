@@ -13,6 +13,7 @@ if (!isDev) {
 
 let win: BrowserWindow | null = null;
 let overlayWin: BrowserWindow | null = null;
+let controlWin: BrowserWindow | null = null;
 let debugWin: BrowserWindow | null = null;
 
 const config = new Conf();
@@ -53,21 +54,34 @@ function createOverlay() {
       webPreferences: {
         nodeIntegration: true,
       },
-    });
-    overlayWin.setBounds({
       width: config.get("width") as number,
       height: config.get("height") as number,
       x: 0,
       y: 0,
     });
 
+    controlWin = new BrowserWindow({
+      frame: false,
+      transparent: true,
+      title: "NextTick - Control",
+      webPreferences: {
+        nodeIntegration: true,
+      },
+      width: config.get("width") as number,
+      height: config.get("height") as number,
+      x: 0,
+      y: 0,
+      parent: overlayWin,
+    });
+
     if (isDev) {
-      overlayWin.loadURL("http://localhost:3000/index.html/#/overlay");
+      controlWin.loadURL("http://localhost:3000/index.html/#/overlay");
     } else {
       // 'build/index.html'
-      overlayWin.loadURL(`file://${__dirname}/../index.html/#/overlay`);
+      controlWin.loadURL(`file://${__dirname}/../index.html/#/overlay`);
     }
     overlayWin.on("closed", () => (overlayWin = null));
+    controlWin.on("closed", () => (controlWin = null));
   } else if (!overlayWin.isVisible()) {
     overlayWin.show();
   }
@@ -159,13 +173,13 @@ app.on("activate", () => {
 app.commandLine.appendSwitch("high-dpi-support", "1");
 app.commandLine.appendSwitch("force-device-scale-factor", "1");
 
+ipcMain.on("quit", () => {
+  app.quit();
+});
+
 ipcMain.on("openOverlay", (event, arg) => {
   console.log("Opening overlay");
   createOverlay();
-});
-
-ipcMain.on("quit", () => {
-  app.quit();
 });
 
 ipcMain.on("closeOverlay", (event, arg) => {
@@ -176,11 +190,6 @@ ipcMain.on("closeOverlay", (event, arg) => {
 ipcMain.on("stateChanged", async (event, arg: GameStateChangeMessage) => {
   console.log("App State Changed");
   console.log(arg);
-  if (arg.gameInDemoMode && arg.demoPlaying) {
-    createOverlay();
-  } else if (!arg.gameInDemoMode) {
-    overlayWin?.close();
-  }
 });
 
 ipcMain.on("chooseDemo", async (event) => {

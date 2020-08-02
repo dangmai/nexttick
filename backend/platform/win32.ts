@@ -37,6 +37,22 @@ export function activateWindow(
   }
 }
 
+export function manageWindows() {
+  const setParent = path.resolve(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "build",
+    "setParent.exe"
+  );
+
+  spawn(setParent, [], {
+    stdio: "inherit",
+    shell: true,
+  });
+}
+
 export async function findCsgoPid(): Promise<number | null> {
   return new Promise((resolve, reject) => {
     exec("tasklist", {}, (err: ExecException | null, stdout: string) => {

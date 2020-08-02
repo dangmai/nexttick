@@ -39,8 +39,11 @@ export const MainWindow = () => {
     e.preventDefault();
     if (demoPath) {
       setDemoLoading(true);
-      const result = await api.playDemo(demoPath);
-      console.log(result);
+      if (window.require) {
+        const { ipcRenderer } = window.require("electron");
+        ipcRenderer.send("openOverlay");
+      }
+      await api.playDemo(demoPath);
       setDemoLoading(false);
     } else {
       console.log("No demo chosen");

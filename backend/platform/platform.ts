@@ -9,6 +9,7 @@ export interface PlatformCommands {
     keyToSend?: string,
     callback?: () => void
   ): void;
+  manageWindows(): void;
   findCsgoPid(): Promise<number | null>;
 }
 

@@ -160,6 +160,7 @@ export function launchCsgo(config: Conf, extraArgs?: string[]) {
     stdio: "ignore",
   });
   csgoProcess.unref();
+  platformInstance.manageWindows();
 }
 export async function playDemo(config: Conf, demoPath: string) {
   const csgoPid = await platformInstance.findCsgoPid();

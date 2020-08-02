@@ -109,7 +109,7 @@ const handleKeyUp = async (e: KeyboardEvent) => {
 
 export function Overlay() {
   useEffect(() => {
-    document.title = "NextTick - Overlay";
+    document.title = "NextTick - Control";
   }, []);
 
   return (
