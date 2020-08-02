@@ -1,10 +1,12 @@
 import React, { useEffect, KeyboardEvent } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { useSelector } from "react-redux";
 import { GameState } from "csgo-gsi-types";
 
 import "bootstrap/dist/css/bootstrap.css";
 import "./Overlay.css";
 
+import { RootState } from "../../rootReducer";
 import * as api from "../../api";
 import { ConnectedPlayerControl } from "../PlayerControl/PlayerControl";
 import { ConnectedControlPanel } from "../ControlPanel/ControlPanel";
@@ -96,21 +98,28 @@ const handleKeyDown = async (e: KeyboardEvent) => {
     await api.showScoreboard();
   }
 };
-const handleKeyUp = async (e: KeyboardEvent) => {
-  if (e.keyCode === 9) {
-    console.log("Tab unheld");
-    await api.hideScoreboard();
-  }
-  if (e.keyCode === 192) {
-    console.log("Backtick pressed");
-    await api.openConsole();
-  }
-};
 
 export function Overlay() {
   useEffect(() => {
     document.title = "NextTick - Control";
   }, []);
+
+  const players = useSelector((state: RootState) => state.gameState);
+
+  const handleKeyUp = async (e: KeyboardEvent) => {
+    if (e.keyCode === 9) {
+      console.log("Tab unheld");
+      await api.hideScoreboard();
+    }
+    if (e.keyCode === 192) {
+      console.log("Backtick pressed");
+      await api.openConsole();
+    }
+    if (e.keyCode >= 48 && e.keyCode <= 57) {
+      const number = e.keyCode - 48;
+      await api.specPlayer(players[number].steamId);
+    }
+  };
 
   return (
     <div
